@@ -1,0 +1,450 @@
+<mxfile host="app.diagrams.net" pages="3">
+  <diagram name="DFD Level 0" id="p0">
+    <mxGraphModel dx="1587" dy="554" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="681" pageHeight="485" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p0-admin" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1f5fbf;fontColor=#1f5fbf;strokeWidth=2;fontSize=12;" value="Admin" vertex="1">
+          <mxGeometry height="43" width="86" x="-20" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p0-sv" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c75b12;fontColor=#c75b12;strokeWidth=2;fontSize=12;" value="Student" vertex="1">
+          <mxGeometry height="43" width="86" x="-20" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="p0-p0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" value="0.0&lt;br&gt;Student&lt;br&gt;Management System" vertex="1">
+          <mxGeometry height="122" width="173" x="448" y="152" as="geometry" />
+        </mxCell>
+        <mxCell id="p0-e0" edge="1" parent="1" source="p0-admin" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p0-p0" value="Login credentials, logout request,&lt;br&gt;change-password request,&lt;br&gt;management data (students, classes, courses, grades)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="443" y="99" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p0-e2" edge="1" parent="1" source="p0-sv" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p0-p0" value="Login credentials, logout request,&lt;br&gt;change-password request,&lt;br&gt;grade view request">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="272" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p0-e3" edge="1" parent="1" source="p0-p0" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p0-admin" value="Authentication result, notifications,&lt;br&gt;lists, reports">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="124" y="78" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p0-e5" edge="1" parent="1" source="p0-p0" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p0-sv" value="Login result, logout notification,&lt;br&gt;change-password result,&lt;br&gt;transcript">
+          <mxGeometry relative="1" x="0.1882" y="-56" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="227" y="425" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="DFD Level 1" id="p1">
+    <mxGraphModel dx="2002" dy="667" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="910" pageHeight="952" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p1-sv" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c75b12;fontColor=#c75b12;strokeWidth=2;fontSize=12;" value="Student" vertex="1">
+          <mxGeometry height="43" width="86" y="268" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-admin" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1f5fbf;fontColor=#1f5fbf;strokeWidth=2;fontSize=12;" value="Admin" vertex="1">
+          <mxGeometry height="43" width="86" y="644" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-p1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" value="1.0&lt;br&gt;Authentication &amp;amp;&lt;br&gt;account management" vertex="1">
+          <mxGeometry height="62" width="158" x="312" y="85" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-p2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" value="2.0&lt;br&gt;Grade&lt;br&gt;management" vertex="1">
+          <mxGeometry height="62" width="83" x="349" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-p3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" value="3.0&lt;br&gt;Student&lt;br&gt;management" vertex="1">
+          <mxGeometry height="62" width="93" x="345" y="667" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-p4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" value="4.0&lt;br&gt;Class &amp;amp;&lt;br&gt;course management" vertex="1">
+          <mxGeometry height="62" width="130" x="326" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-d1" parent="1" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" value="D1&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Accounts" vertex="1">
+          <mxGeometry height="36" width="150" x="729" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-d5" parent="1" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" value="D5&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Login sessions" vertex="1">
+          <mxGeometry height="36" width="150" x="709" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-d4" parent="1" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" value="D4&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Grades" vertex="1">
+          <mxGeometry height="36" width="150" x="741" y="457" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-d2" parent="1" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" value="D2&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Students" vertex="1">
+          <mxGeometry height="36" width="150" x="730" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-d3" parent="1" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" value="D3&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Classes &amp;amp; courses" vertex="1">
+          <mxGeometry height="36" width="150" x="714" y="787" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e2" edge="1" parent="1" source="p1-sv" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p1" value="Login credentials,&lt;br&gt;logout request,&lt;br&gt;change-password request">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="106" y="157" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e3" edge="1" parent="1" source="p1-sv" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p2" value="Grade view request">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="247" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e4" edge="1" parent="1" source="p1-admin" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p1" value="Login credentials,&lt;br&gt;logout request,&lt;br&gt;change-password request">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="195" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e5" edge="1" parent="1" source="p1-admin" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p2" value="Lookup request,&lt;br&gt;grade statistics">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="199" y="592" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e6" edge="1" parent="1" source="p1-admin" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p3" value="Student information&lt;br&gt;(add / edit / delete)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="249" y="710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e7" edge="1" parent="1" source="p1-admin" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p4" value="Class and&lt;br&gt;course information">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="236" y="822" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e9" edge="1" parent="1" source="p1-p1" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-sv" value="Login result,&lt;br&gt;logout notification,&lt;br&gt;change-password result">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="101" y="223" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e10" edge="1" parent="1" source="p1-p1" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.885;entryY=0.103;entryDx=0;entryDy=0;entryPerimeter=0;" target="p1-admin" value="Authentication result,&lt;br&gt;notifications">
+          <mxGeometry relative="1" x="0.0158" y="-8.36" as="geometry">
+            <Array as="points">
+              <mxPoint x="253.7" y="345.48" />
+            </Array>
+            <mxPoint x="395.29599999999976" y="159.99999999999997" as="sourcePoint" />
+            <mxPoint x="99.99600000000004" y="653.288" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e11" edge="1" parent="1" source="p1-p1" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-d1" value="New password hash,&lt;br&gt;failed login count">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="632" y="40" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e12" edge="1" parent="1" source="p1-p1" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-d5" value="Create / end session">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="584" y="139" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e14" edge="1" parent="1" source="p1-p2" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-sv" value="Transcript">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="76" y="413" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e15" edge="1" parent="1" source="p1-p2" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-admin" value="Transcript,&lt;br&gt;reports">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="665" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e16" edge="1" parent="1" source="p1-p2" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-d4" value="Entered grades">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="484" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e17" edge="1" parent="1" source="p1-p3" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;entryX=1;entryY=1;entryDx=0;entryDy=0;exitX=0.076;exitY=0.808;exitDx=0;exitDy=0;exitPerimeter=0;" target="p1-admin" value="Student list,&lt;br&gt;results">
+          <mxGeometry relative="1" x="-0.1431" y="-3.88" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="740" />
+              <mxPoint x="157.07999999999998" y="752" />
+            </Array>
+            <mxPoint x="397.3595004736572" y="734.3938129022838" as="sourcePoint" />
+            <mxPoint x="119.99588785046747" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e18" edge="1" parent="1" source="p1-p3" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-d2" value="Student records">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="633" y="636" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e19" edge="1" parent="1" source="p1-p4" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-admin" value="Class list,&lt;br&gt;courses, results">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="60" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e20" edge="1" parent="1" source="p1-p4" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-d3" value="Class and course data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="678" y="828" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e21" edge="1" parent="1" source="p1-d1" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p1" value="Account information">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="559" y="99" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e22" edge="1" parent="1" source="p1-d5" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p1" value="Session status">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="157" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e23" edge="1" parent="1" source="p1-d4" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p2" value="Grade data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="537" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e24" edge="1" parent="1" source="p1-d2" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p2" value="Student information">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="582" y="557" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e25" edge="1" parent="1" source="p1-d2" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p3" value="Student data">
+          <mxGeometry relative="1" x="0.2624" y="-0.96" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="650" y="680" />
+              <mxPoint x="550" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e26" edge="1" parent="1" source="p1-d3" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p2" value="Course information">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e27" edge="1" parent="1" source="p1-d3" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p3" value="Valid class code">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="476" y="754" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e28" edge="1" parent="1" source="p1-d3" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" target="p1-p4" value="Class and course list">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="877" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="DFD Level 2 - Process 1.0" id="p2">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="886" pageHeight="541" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p2-gv" value="Lecturer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e8b57;fontColor=#2e8b57;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="86" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-sv" value="Student" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c75b12;fontColor=#c75b12;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="0" y="101" width="86" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-admin" value="Admin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1f5fbf;fontColor=#1f5fbf;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="0" y="350" width="86" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-q1" value="1.1&lt;br&gt;Login" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="329" y="136" width="107" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-q2" value="1.2&lt;br&gt;Logout" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="436" width="105" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-q3" value="1.3&lt;br&gt;Change password" style="ellipse;whiteSpace=wrap;html=1;fillColor=#eef3fb;strokeColor=#000000;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="319" y="320" width="127" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-d1" value="D1&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Accounts" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="705" y="208" width="150" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-d5" value="D5&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Login sessions" style="shape=partialRectangle;right=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="685" y="383" width="150" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-e0" value="Login credentials" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#2e8b57;fontColor=#2e8b57;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-gv" target="p2-q1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="318" y="78" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e1" value="Login credentials" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-sv" target="p2-q1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="202" y="139" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e2" value="Login credentials" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-admin" target="p2-q1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="245" y="211" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e3" value="Logout request" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-admin" target="p2-q2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="245" y="428" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e4" value="Current password,&lt;br&gt;new password" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-admin" target="p2-q3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="196" y="358" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e5" value="Login result" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#2e8b57;fontColor=#2e8b57;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q1" target="p2-gv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="221" y="93" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e6" value="Login result" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q1" target="p2-sv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="122" y="152" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e7" value="Login result" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q1" target="p2-admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="193" y="304" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e8" value="Failed login count,&lt;br&gt;lock status" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q1" target="p2-d1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="563" y="191" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e9" value="Create session" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q1" target="p2-d5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="567" y="245" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e10" value="Logout notification" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q2" target="p2-admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="107" y="427" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e11" value="End session" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q2" target="p2-d5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="671" y="443" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e12" value="Change-password result" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#1f5fbf;fontColor=#1f5fbf;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q3" target="p2-admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="203" y="385" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e13" value="New password hash" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q3" target="p2-d1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="686" y="296" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e14" value="Account information" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-d1" target="p2-q1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="524" y="138" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e15" value="Current password hash" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-d1" target="p2-q3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="529" y="311" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e16" value="Session status" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#555555;fontColor=#222222;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-d5" target="p2-q3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="464" y="385" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e17" value="Logout request" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-sv" target="p2-q2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e18" value="Current password,&lt;br&gt;new password" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-sv" target="p2-q3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="290" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e19" value="Logout notification" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q2" target="p2-sv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="110" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e20" value="Change-password result" style="curved=1;endArrow=classic;endFill=1;html=1;rounded=1;strokeColor=#c75b12;fontColor=#c75b12;fontSize=10;labelBackgroundColor=#ffffff;strokeWidth=1.3;" edge="1" parent="1" source="p2-q3" target="p2-sv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="110" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
