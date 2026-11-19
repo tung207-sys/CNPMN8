@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Manager Student System",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/Task3/Task3.py",
+            "cwd": "${workspaceFolder}/Task3",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

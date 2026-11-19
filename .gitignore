@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment and test/tool caches
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Visual Studio
+.vs/
+
+# Local application databases
+Task3/instance/*.db
