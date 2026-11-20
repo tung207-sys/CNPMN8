@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, abo
 app = Flask(__name__)
 app.secret_key = 'manager_student_system_task3_2026'
 
+# dùng để tìm kiếm bằng từ khóa tiếng việt không dấu và không phân biệt hoa thường
 def normalize_vi(text):
     if not text:
         return '', ''
@@ -130,7 +131,7 @@ LOP_HOCS = [
     LopHoc(1, 'CNTT2401', 'Công nghệ thông tin 1', 'Công nghệ thông tin',
            'Khóa 2024 | Hệ chính quy', 48, 'Thứ 2 | 10:15 – 11:00', 'B301'),
     LopHoc(2, 'CNTT2402', 'Công nghệ thông tin 2', 'Công nghệ thông tin',
-           'Khóa 2024 | Hệ chính quy', 46, 'Thứ 3 | 10:15 – 11:00', 'B301'),
+           'Khóa 2024 | Hệ chính quy', 46, 'Thứ 3 | 10:15 – 11:00', 'D107'),
     LopHoc(3, 'QTKD2401', 'Quản trị kinh doanh', 'Quản trị kinh doanh',
            'Khóa 2024 | Hệ chính quy', 47, 'Thứ 4 | 10:15 – 11:00', 'C103'),
 ]
