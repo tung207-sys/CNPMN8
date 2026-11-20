@@ -1,15 +1,8 @@
 import unicodedata
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 
 app = Flask(__name__)
 app.secret_key = 'manager_student_system_task3_2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///manager_student_system.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
-# ================= HÀM HỖ TRỢ TÌM KIẾM TIẾNG VIỆT =================
 
 def normalize_vi(text):
     if not text:
@@ -40,18 +33,15 @@ def match_department(khoa_keyword, khoa_field):
     f_lower, f_no_accent = normalize_vi(khoa_field)
     return (kw_lower in f_lower) or (kw_no_accent in f_no_accent)
 
-# ================= MODELS =================
-
-class GiangVien(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ma_gv = db.Column(db.String(20), unique=True, nullable=False)
-    ho_ten = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    khoa = db.Column(db.String(100), nullable=False)
-    hoc_vi = db.Column(db.String(50), nullable=False)
-    chuyen_mon = db.Column(db.String(120), nullable=False)
-
-    phan_congs = db.relationship('PhanCongGiangDay', backref='giang_vien', lazy=True)
+class GiangVien:
+    def __init__(self, id, ma_gv, ho_ten, email, khoa, hoc_vi, chuyen_mon):
+        self.id = id
+        self.ma_gv = ma_gv
+        self.ho_ten = ho_ten
+        self.email = email
+        self.khoa = khoa
+        self.hoc_vi = hoc_vi
+        self.chuyen_mon = chuyen_mon
 
     @property
     def initials(self):
@@ -60,46 +50,119 @@ class GiangVien(db.Model):
             return (parts[-2][0] + parts[-1][0]).upper()
         return self.ho_ten[:2].upper()
 
-class MonHoc(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ma_mon = db.Column(db.String(20), unique=True, nullable=False)
-    ten_mon = db.Column(db.String(120), nullable=False)
-    so_tin_chi = db.Column(db.Integer, nullable=False)
-    khoa = db.Column(db.String(100), nullable=False)
-    so_tiet = db.Column(db.String(50), nullable=False)
-    mo_ta = db.Column(db.String(255), default='')
+    @property
+    def phan_congs(self):
+        return [pc for pc in PHAN_CONGS if pc.giang_vien_id == self.id]
 
-    phan_congs = db.relationship('PhanCongGiangDay', backref='mon_hoc', lazy=True)
+class MonHoc:
+    def __init__(self, id, ma_mon, ten_mon, so_tin_chi, khoa, so_tiet, mo_ta=''):
+        self.id = id
+        self.ma_mon = ma_mon
+        self.ten_mon = ten_mon
+        self.so_tin_chi = so_tin_chi
+        self.khoa = khoa
+        self.so_tiet = so_tiet
+        self.mo_ta = mo_ta
+        self.row_class = ''
 
-class LopHoc(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ma_lop = db.Column(db.String(20), unique=True, nullable=False)
-    ten_lop = db.Column(db.String(100), nullable=False)
-    nganh = db.Column(db.String(100), nullable=False)
-    khoa_hoc = db.Column(db.String(80), nullable=False)
-    si_so = db.Column(db.Integer, nullable=False)
-    lich_hoc = db.Column(db.String(100), nullable=False)
-    phong = db.Column(db.String(50), nullable=False)
+    @property
+    def phan_congs(self):
+        return [pc for pc in PHAN_CONGS if pc.mon_hoc_id == self.id]
 
-    phan_congs = db.relationship('PhanCongGiangDay', backref='lop_hoc', lazy=True)
+class LopHoc:
+    def __init__(self, id, ma_lop, ten_lop, nganh, khoa_hoc, si_so, lich_hoc, phong):
+        self.id = id
+        self.ma_lop = ma_lop
+        self.ten_lop = ten_lop
+        self.nganh = nganh
+        self.khoa_hoc = khoa_hoc
+        self.si_so = si_so
+        self.lich_hoc = lich_hoc
+        self.phong = phong
+        self.row_class = ''
 
-class PhanCongGiangDay(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    lop_id = db.Column(db.Integer, db.ForeignKey('lop_hoc.id'), nullable=False)
-    mon_hoc_id = db.Column(db.Integer, db.ForeignKey('mon_hoc.id'), nullable=False)
-    giang_vien_id = db.Column(db.Integer, db.ForeignKey('giang_vien.id'), nullable=False)
+    @property
+    def phan_congs(self):
+        return [pc for pc in PHAN_CONGS if pc.lop_id == self.id]
 
+class PhanCongGiangDay:
+    def __init__(self, id, lop_id, mon_hoc_id, giang_vien_id):
+        self.id = id
+        self.lop_id = lop_id
+        self.mon_hoc_id = mon_hoc_id
+        self.giang_vien_id = giang_vien_id
 
+    @property
+    def lop_hoc(self):
+        return next((l for l in LOP_HOCS if l.id == self.lop_id), None)
 
-# 1. QUẢN LÝ LỚP HỌC (UC08, UC09, UC11, UC12)
+    @property
+    def mon_hoc(self):
+        return next((m for m in MON_HOCS if m.id == self.mon_hoc_id), None)
+
+    @property
+    def giang_vien(self):
+        return next((g for g in GIANG_VIENS if g.id == self.giang_vien_id), None)
+
+GIANG_VIENS = [
+    GiangVien(1, 'GV202401', 'Lê Thu Hương', 'huong.lt@example.edu.vn',
+              'Công nghệ thông tin', 'Thạc sĩ', 'Cơ sở dữ liệu & Hệ thống thông tin'),
+    GiangVien(2, 'GV202402', 'Nguyễn Văn An', 'an.nv@example.edu.vn',
+              'Công nghệ thông tin', 'Tiến sĩ', 'Công nghệ phần mềm'),
+    GiangVien(3, 'GV202403', 'Trần Minh Tâm', 'tam.tm@example.edu.vn',
+              'Quản trị kinh doanh', 'Tiến sĩ', 'Quản trị chiến lược'),
+    GiangVien(4, 'GV202404', 'Phạm Lan Anh', 'anh.pl@example.edu.vn',
+              'Ngôn ngữ Anh', 'Thạc sĩ', 'Tiếng Anh thương mại'),
+]
+
+MON_HOCS = [
+    MonHoc(1, 'CSDL2601', 'Cơ sở dữ liệu', 3, 'Công nghệ thông tin',
+           '30 LT | 30 TH', 'Thiết kế ERD, chuẩn hóa dữ liệu, đại số quan hệ và truy vấn SQL.'),
+    MonHoc(2, 'CNPM2601', 'Công nghệ phần mềm', 3, 'Công nghệ thông tin',
+           '30 LT | 30 TH', 'Quy trình phát triển phần mềm, đặc tả yêu cầu và thiết kế sơ đồ UML.'),
+    MonHoc(3, 'LTW2601', 'Lập trình Web', 4, 'Công nghệ thông tin',
+           '30 LT | 60 TH', 'Xây dựng ứng dụng Web bằng Flask và giao diện Bootstrap.'),
+    MonHoc(4, 'QTKD2602', 'Quản trị chiến lược', 3, 'Quản trị kinh doanh',
+           '45 LT | 0 TH', 'Hoạch định, triển khai và đánh giá chiến lược kinh doanh doanh nghiệp.'),
+]
+
+LOP_HOCS = [
+    LopHoc(1, 'CNTT2401', 'Công nghệ thông tin 1', 'Công nghệ thông tin',
+           'Khóa 2024 | Hệ chính quy', 48, 'Thứ 2 | 10:15 – 11:00', 'B301'),
+    LopHoc(2, 'CNTT2402', 'Công nghệ thông tin 2', 'Công nghệ thông tin',
+           'Khóa 2024 | Hệ chính quy', 46, 'Thứ 3 | 10:15 – 11:00', 'B301'),
+    LopHoc(3, 'QTKD2401', 'Quản trị kinh doanh', 'Quản trị kinh doanh',
+           'Khóa 2024 | Hệ chính quy', 47, 'Thứ 4 | 10:15 – 11:00', 'B301'),
+]
+
+PHAN_CONGS = [
+    PhanCongGiangDay(1, lop_id=1, mon_hoc_id=1, giang_vien_id=1),
+    PhanCongGiangDay(2, lop_id=1, mon_hoc_id=2, giang_vien_id=2),
+]
+
+def get_or_404(items, item_id):
+    item = next((x for x in items if x.id == item_id), None)
+    if item is None:
+        abort(404)
+    return item
+
+def get_next_id(items):
+    return max((x.id for x in items), default=0) + 1
+
+@app.route('/')
+def index():
+    return redirect(url_for('quan_ly_lop'))
+
+# 1. quản lý lớp học
 @app.route('/lop-hoc', methods=['GET', 'POST'])
 def quan_ly_lop():
     if request.method == 'POST':
         ma_lop = request.form['ma_lop'].strip()
-        if LopHoc.query.filter_by(ma_lop=ma_lop).first():
+        if any(l.ma_lop == ma_lop for l in LOP_HOCS):
             flash('Mã lớp đã tồn tại!', 'danger')
         else:
-            db.session.add(LopHoc(
+            LOP_HOCS.append(LopHoc(
+                id=get_next_id(LOP_HOCS),
                 ma_lop=ma_lop,
                 ten_lop=request.form['ten_lop'].strip(),
                 nganh=request.form['nganh'].strip(),
@@ -108,35 +171,30 @@ def quan_ly_lop():
                 lich_hoc=request.form['lich_hoc'].strip(),
                 phong=request.form['phong'].strip()
             ))
-            db.session.commit()
             flash('Thêm lớp học thành công!', 'success')
         return redirect(url_for('quan_ly_lop'))
 
     q = request.args.get('q', '').strip()
     selected_code = request.args.get('selected', '')
 
-    all_lops = LopHoc.query.all()
-    ds_lop = [l for l in all_lops if match_keyword(q, l.ma_lop, l.ten_lop)]
+    ds_lop = [l for l in LOP_HOCS if match_keyword(q, l.ma_lop, l.ten_lop)]
 
-    selected_lop = LopHoc.query.filter_by(ma_lop=selected_code).first() if selected_code else None
+    selected_lop = next((l for l in LOP_HOCS if l.ma_lop == selected_code), None) if selected_code else None
     if not selected_lop and ds_lop:
         selected_lop = ds_lop[0]
 
     for lop in ds_lop:
         lop.row_class = 'bg-light' if (selected_lop and selected_lop.id == lop.id) else ''
 
-    ds_mon = MonHoc.query.all()
-    ds_gv = GiangVien.query.all()
-
     return render_template('class.html', ds_lop=ds_lop, selected_lop=selected_lop,
-                           ds_mon=ds_mon, ds_gv=ds_gv, q=q)
+                           ds_mon=MON_HOCS, ds_gv=GIANG_VIENS, q=q)
 
 @app.route('/lop-hoc/sua/<int:id>', methods=['POST'])
 def sua_lop(id):
-    lop = LopHoc.query.get_or_404(id)
+    lop = get_or_404(LOP_HOCS, id)
     ma_lop = request.form['ma_lop'].strip()
 
-    if LopHoc.query.filter(LopHoc.ma_lop == ma_lop, LopHoc.id != id).first():
+    if any(l.ma_lop == ma_lop and l.id != id for l in LOP_HOCS):
         flash('Mã lớp mới bị trùng với lớp khác!', 'danger')
         return redirect(url_for('quan_ly_lop', selected=lop.ma_lop))
 
@@ -147,87 +205,78 @@ def sua_lop(id):
     lop.si_so = int(request.form['si_so'])
     lop.lich_hoc = request.form['lich_hoc'].strip()
     lop.phong = request.form['phong'].strip()
-    db.session.commit()
 
     flash('Đã cập nhật thông tin lớp học!', 'success')
     return redirect(url_for('quan_ly_lop', selected=lop.ma_lop))
 
 @app.route('/lop-hoc/xoa/<int:id>')
 def xoa_lop(id):
-    lop = LopHoc.query.get_or_404(id)
+    lop = get_or_404(LOP_HOCS, id)
     if lop.phan_congs:
         flash('Không thể xóa lớp học đang có môn học được phân công! Hãy gỡ các môn học trước.', 'warning')
         return redirect(url_for('quan_ly_lop', selected=lop.ma_lop))
-    db.session.delete(lop)
-    db.session.commit()
+    LOP_HOCS.remove(lop)
     flash('Đã xóa lớp học.', 'info')
     return redirect(url_for('quan_ly_lop'))
 
-# 2. PHÂN CÔNG MÔN HỌC & GIẢNG VIÊN VÀO LỚP (UC28)
+# 2. thêm môn học và giảng viên vào lớp học
 @app.route('/lop-hoc/phan-cong', methods=['POST'])
 def them_phan_cong():
     lop_id = int(request.form['lop_id'])
     mon_hoc_id = int(request.form['mon_hoc_id'])
     giang_vien_id = int(request.form['giang_vien_id'])
 
-    lop = LopHoc.query.get_or_404(lop_id)
-    mon = MonHoc.query.get_or_404(mon_hoc_id)
-    gv = GiangVien.query.get_or_404(giang_vien_id)
+    lop = get_or_404(LOP_HOCS, lop_id)
+    mon = get_or_404(MON_HOCS, mon_hoc_id)
+    gv = get_or_404(GIANG_VIENS, giang_vien_id)
 
-    trung = PhanCongGiangDay.query.filter_by(lop_id=lop.id, mon_hoc_id=mon.id).first()
-    if trung:
+    if any(pc.lop_id == lop.id and pc.mon_hoc_id == mon.id for pc in PHAN_CONGS):
         flash(f'Môn "{mon.ten_mon}" đã được phân công cho lớp {lop.ma_lop} rồi!', 'warning')
         return redirect(url_for('quan_ly_lop', selected=lop.ma_lop))
 
-    db.session.add(PhanCongGiangDay(
+    PHAN_CONGS.append(PhanCongGiangDay(
+        id=get_next_id(PHAN_CONGS),
         lop_id=lop.id,
         mon_hoc_id=mon.id,
         giang_vien_id=gv.id
     ))
-    db.session.commit()
     flash(f'Đã thêm môn {mon.ten_mon} ({gv.ho_ten}) vào lớp {lop.ma_lop}!', 'success')
     return redirect(url_for('quan_ly_lop', selected=lop.ma_lop))
 
 @app.route('/lop-hoc/sua-phan-cong/<int:id>', methods=['POST'])
 def sua_phan_cong(id):
-    pc = PhanCongGiangDay.query.get_or_404(id)
+    pc = get_or_404(PHAN_CONGS, id)
     mon_hoc_id = int(request.form['mon_hoc_id'])
     giang_vien_id = int(request.form['giang_vien_id'])
 
-    trung = PhanCongGiangDay.query.filter(
-        PhanCongGiangDay.lop_id == pc.lop_id,
-        PhanCongGiangDay.mon_hoc_id == mon_hoc_id,
-        PhanCongGiangDay.id != id
-    ).first()
-    if trung:
+    if any(p.lop_id == pc.lop_id and p.mon_hoc_id == mon_hoc_id and p.id != id for p in PHAN_CONGS):
         flash('Lớp này đã có môn học đó trong danh sách phân công!', 'warning')
         return redirect(url_for('quan_ly_lop', selected=pc.lop_hoc.ma_lop))
 
     pc.mon_hoc_id = mon_hoc_id
     pc.giang_vien_id = giang_vien_id
-    db.session.commit()
 
     flash('Đã cập nhật môn học & giảng viên của lớp!', 'success')
     return redirect(url_for('quan_ly_lop', selected=pc.lop_hoc.ma_lop))
 
 @app.route('/lop-hoc/xoa-phan-cong/<int:id>')
 def xoa_phan_cong(id):
-    pc = PhanCongGiangDay.query.get_or_404(id)
+    pc = get_or_404(PHAN_CONGS, id)
     ma_lop = pc.lop_hoc.ma_lop
-    db.session.delete(pc)
-    db.session.commit()
+    PHAN_CONGS.remove(pc)
     flash('Đã gỡ môn học khỏi lớp.', 'info')
     return redirect(url_for('quan_ly_lop', selected=ma_lop))
 
-# 3. QUẢN LÝ GIẢNG VIÊN (UC27 + SỬA GIẢNG VIÊN)
+# 3. quản lý giảng viên
 @app.route('/giang-vien', methods=['GET', 'POST'])
 def quan_ly_giang_vien():
     if request.method == 'POST':
         ma_gv = request.form['ma_gv'].strip()
-        if GiangVien.query.filter_by(ma_gv=ma_gv).first():
+        if any(g.ma_gv == ma_gv for g in GIANG_VIENS):
             flash('Mã giảng viên đã tồn tại!', 'danger')
         else:
-            db.session.add(GiangVien(
+            GIANG_VIENS.append(GiangVien(
+                id=get_next_id(GIANG_VIENS),
                 ma_gv=ma_gv,
                 ho_ten=request.form['ho_ten'].strip(),
                 email=request.form['email'].strip(),
@@ -235,21 +284,19 @@ def quan_ly_giang_vien():
                 hoc_vi=request.form['hoc_vi'].strip(),
                 chuyen_mon=request.form['chuyen_mon'].strip()
             ))
-            db.session.commit()
             flash('Thêm giảng viên thành công!', 'success')
         return redirect(url_for('quan_ly_giang_vien'))
 
     q = request.args.get('q', '').strip()
     khoa_q = request.args.get('khoa', '').strip()
 
-    all_gvs = GiangVien.query.all()
     ds_gv = [
-        g for g in all_gvs
+        g for g in GIANG_VIENS
         if match_keyword(q, g.ma_gv, g.ho_ten) and match_department(khoa_q, g.khoa)
     ]
 
-    tong_gv = len(all_gvs)
-    ds_khoa = sorted(list(set(g.khoa for g in all_gvs)))
+    tong_gv = len(GIANG_VIENS)
+    ds_khoa = sorted(list(set(g.khoa for g in GIANG_VIENS)))
     so_khoa = len(ds_khoa)
 
     return render_template('teacher.html', ds_gv=ds_gv, tong_gv=tong_gv,
@@ -257,10 +304,10 @@ def quan_ly_giang_vien():
 
 @app.route('/giang-vien/sua/<int:id>', methods=['POST'])
 def sua_giang_vien(id):
-    gv = GiangVien.query.get_or_404(id)
+    gv = get_or_404(GIANG_VIENS, id)
     ma_gv = request.form['ma_gv'].strip()
 
-    if GiangVien.query.filter(GiangVien.ma_gv == ma_gv, GiangVien.id != id).first():
+    if any(g.ma_gv == ma_gv and g.id != id for g in GIANG_VIENS):
         flash('Mã giảng viên mới bị trùng với giảng viên khác!', 'danger')
         return redirect(url_for('quan_ly_giang_vien'))
 
@@ -270,31 +317,30 @@ def sua_giang_vien(id):
     gv.khoa = request.form['khoa'].strip()
     gv.hoc_vi = request.form['hoc_vi'].strip()
     gv.chuyen_mon = request.form['chuyen_mon'].strip()
-    db.session.commit()
 
     flash('Đã cập nhật thông tin giảng viên!', 'success')
     return redirect(url_for('quan_ly_giang_vien'))
 
 @app.route('/giang-vien/xoa/<int:id>')
 def xoa_giang_vien(id):
-    gv = GiangVien.query.get_or_404(id)
+    gv = get_or_404(GIANG_VIENS, id)
     if gv.phan_congs:
         flash('Không thể xóa giảng viên đang có lịch phân công giảng dạy!', 'warning')
         return redirect(url_for('quan_ly_giang_vien'))
-    db.session.delete(gv)
-    db.session.commit()
+    GIANG_VIENS.remove(gv)
     flash('Đã xóa giảng viên.', 'info')
     return redirect(url_for('quan_ly_giang_vien'))
 
-# 4. QUẢN LÝ MÔN HỌC (UC32, UC33, UC34, UC35)
+# 4. quản lý môn học
 @app.route('/mon-hoc', methods=['GET', 'POST'])
 def quan_ly_mon_hoc():
     if request.method == 'POST':
         ma_mon = request.form['ma_mon'].strip()
-        if MonHoc.query.filter_by(ma_mon=ma_mon).first():
+        if any(m.ma_mon == ma_mon for m in MON_HOCS):
             flash('Mã môn học đã tồn tại!', 'danger')
         else:
-            db.session.add(MonHoc(
+            MON_HOCS.append(MonHoc(
+                id=get_next_id(MON_HOCS),
                 ma_mon=ma_mon,
                 ten_mon=request.form['ten_mon'].strip(),
                 so_tin_chi=int(request.form['so_tin_chi']),
@@ -302,21 +348,19 @@ def quan_ly_mon_hoc():
                 so_tiet=request.form['so_tiet'].strip(),
                 mo_ta=request.form['mo_ta'].strip()
             ))
-            db.session.commit()
             flash('Thêm môn học thành công!', 'success')
         return redirect(url_for('quan_ly_mon_hoc'))
 
     q = request.args.get('q', '').strip()
     selected_code = request.args.get('selected', '')
 
-    all_mons = MonHoc.query.all()
-    ds_mon = [m for m in all_mons if match_keyword(q, m.ma_mon, m.ten_mon)]
+    ds_mon = [m for m in MON_HOCS if match_keyword(q, m.ma_mon, m.ten_mon)]
 
-    selected_mon = MonHoc.query.filter_by(ma_mon=selected_code).first() if selected_code else None
+    selected_mon = next((m for m in MON_HOCS if m.ma_mon == selected_code), None) if selected_code else None
     if not selected_mon and ds_mon:
         selected_mon = ds_mon[0]
 
-    tong_tin_chi = sum(m.so_tin_chi for m in all_mons)
+    tong_tin_chi = sum(m.so_tin_chi for m in MON_HOCS)
 
     for m in ds_mon:
         m.row_class = 'bg-light' if (selected_mon and selected_mon.id == m.id) else ''
@@ -325,10 +369,10 @@ def quan_ly_mon_hoc():
 
 @app.route('/mon-hoc/sua/<int:id>', methods=['POST'])
 def sua_mon_hoc(id):
-    mon = MonHoc.query.get_or_404(id)
+    mon = get_or_404(MON_HOCS, id)
     ma_mon = request.form['ma_mon'].strip()
 
-    if MonHoc.query.filter(MonHoc.ma_mon == ma_mon, MonHoc.id != id).first():
+    if any(m.ma_mon == ma_mon and m.id != id for m in MON_HOCS):
         flash('Mã môn học mới bị trùng với môn học khác!', 'danger')
         return redirect(url_for('quan_ly_mon_hoc', selected=mon.ma_mon))
 
@@ -338,19 +382,17 @@ def sua_mon_hoc(id):
     mon.khoa = request.form['khoa'].strip()
     mon.so_tiet = request.form['so_tiet'].strip()
     mon.mo_ta = request.form['mo_ta'].strip()
-    db.session.commit()
 
     flash('Đã cập nhật thông tin môn học!', 'success')
     return redirect(url_for('quan_ly_mon_hoc', selected=mon.ma_mon))
 
 @app.route('/mon-hoc/xoa/<int:id>')
 def xoa_mon_hoc(id):
-    mon = MonHoc.query.get_or_404(id)
+    mon = get_or_404(MON_HOCS, id)
     if mon.phan_congs:
         flash('Không thể xóa môn học đang có phân công giảng viên cho lớp!', 'warning')
         return redirect(url_for('quan_ly_mon_hoc', selected=mon.ma_mon))
-    db.session.delete(mon)
-    db.session.commit()
+    MON_HOCS.remove(mon)
     flash('Đã xóa môn học.', 'info')
     return redirect(url_for('quan_ly_mon_hoc'))
 

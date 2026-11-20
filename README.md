@@ -1,6 +1,6 @@
 # Manager Student System
 
-Ứng dụng web quản lý lớp học, giảng viên và môn học, xây dựng bằng Flask và SQLite.
+Ứng dụng web quản lý lớp học, giảng viên và môn học, xây dựng bằng Flask với dữ liệu mẫu lưu trong bộ nhớ.
 
 ## Yêu cầu
 
@@ -27,7 +27,7 @@ Mở [http://127.0.0.1:5000/lop-hoc](http://127.0.0.1:5000/lop-hoc) để sử d
 - `/giang-vien` — quản lý giảng viên
 - `/mon-hoc` — quản lý môn học
 
-Ứng dụng sử dụng cơ sở dữ liệu SQLite trong thư mục `Task3/instance`.
+Ứng dụng sử dụng dữ liệu mẫu trong bộ nhớ. Các thay đổi sẽ được khởi tạo lại khi khởi động lại ứng dụng.
 
 ## Chạy trong VS Code
 

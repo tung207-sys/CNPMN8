@@ -16,6 +16,3 @@ env/
 
 # Visual Studio
 .vs/
-
-# Local application databases
-Task3/instance/*.db
