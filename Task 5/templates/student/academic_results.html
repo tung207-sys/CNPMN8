@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Kết quả học tập - Cổng sinh viên{% endblock %}
+
+{% block content %}
+<div class="sp-page-header">
+    <div>
+        <h1>Kết quả học tập</h1>
+        <p>Theo dõi điểm trung bình tích lũy (GPA) và chi tiết điểm từng học phần theo học kỳ.</p>
+    </div>
+    <a href="{{ url_for('portal.student_export_grades') }}" class="sp-btn-outline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Tải bảng điểm (.CSV)</span>
+    </a>
+</div>
+
+<!-- Thống kê GPA tích lũy -->
+<div class="sp-card" style="margin-bottom: 20px;">
+    <div class="sp-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <span>Tổng hợp điểm trung bình tích lũy</span>
+    </div>
+
+    <div class="sp-kv-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="sp-kv-item">
+            <label>GPA tích lũy (Hệ 4)</label>
+            <span style="font-size: 20px; font-weight: 800; color: var(--sp-blue);">{{ "%.2f"|format(gpa_info.gpa_4) }} / 4.00</span>
+        </div>
+        <div class="sp-kv-item">
+            <label>Điểm trung bình (Hệ 10)</label>
+            <span style="font-size: 20px; font-weight: 800; color: var(--sp-text);">{{ "%.2f"|format(gpa_info.gpa_10) }} / 10.0</span>
+        </div>
+        <div class="sp-kv-item">
+            <label>Số tín chỉ tích lũy</label>
+            <span style="font-size: 20px; font-weight: 800; color: var(--sp-text);">{{ gpa_info.total_credits }} / {{ student.target_credits }} tín chỉ</span>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng điểm chi tiết theo học kỳ -->
+<div class="sp-card">
+    <div class="sp-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Bảng điểm chi tiết theo học kỳ</span>
+    </div>
+
+    <!-- Bộ lọc học kỳ -->
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px;">
+        <a href="{{ url_for('portal.student_grades', semester='ALL') }}"
+           class="sp-btn-outline"
+           style="{% if selected_semester == 'ALL' %}border-color: var(--sp-blue); color: var(--sp-blue); background: var(--sp-blue-soft);{% endif %}">
+            Tất cả học kỳ
+        </a>
+        {% for sem in semester_cards %}
+        <a href="{{ url_for('portal.student_grades', semester=sem.code) }}"
+           class="sp-btn-outline"
+           style="{% if selected_semester == sem.code %}border-color: var(--sp-blue); color: var(--sp-blue); background: var(--sp-blue-soft);{% endif %}">
+            {{ sem.short }} ({{ sem.gpa }})
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if grade_list %}
+    <div class="sp-table-wrap">
+        <table class="sp-table">
+            <thead>
+                <tr>
+                    <th>HỌC KỲ</th>
+                    <th>MÃ HỌC PHẦN</th>
+                    <th>TÊN HỌC PHẦN</th>
+                    <th class="col-center">TÍN CHỈ</th>
+                    <th class="col-center">CHUYÊN CẦN (10%)</th>
+                    <th class="col-center">GIỮA KỲ (30%)</th>
+                    <th class="col-center">CUỐI KỲ (60%)</th>
+                    <th class="col-center">TỔNG KẾT</th>
+                    <th class="col-center">HỆ 4</th>
+                    <th class="col-center">ĐIỂM CHỮ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in grade_list %}
+                <tr>
+                    <td>{{ g.semester }}</td>
+                    <td class="col-code">{{ g.subject_id }}</td>
+                    <td class="col-name">{{ g.subject_name }}</td>
+                    <td class="col-center">{{ g.credits }}</td>
+                    <td class="col-center">{{ "%.1f"|format(g.attendance) }}</td>
+                    <td class="col-center">{{ "%.1f"|format(g.midterm) }}</td>
+                    <td class="col-center">{{ "%.1f"|format(g.final) }}</td>
+                    <td class="col-center" style="font-weight: 700;">{{ "%.2f"|format(g.total) }}</td>
+                    <td class="col-center">{{ "%.2f"|format(g.point_4) }}</td>
+                    <td class="col-center">
+                        <span class="sp-grade-pill {% if g.letter in ['B', 'C+', 'C', 'D+', 'D'] %}alt{% endif %}">{{ g.letter }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: var(--sp-muted); font-size: 13.5px;">Chưa có dữ liệu điểm cho học kỳ được chọn.</p>
+    {% endif %}
+
+    <div class="sp-table-footer">
+        <span>Công thức: Điểm tổng kết = 10% Chuyên cần + 30% Giữa kỳ + 60% Cuối kỳ</span>
+        <span>Thang điểm: A = 4.0 • B+ = 3.5 • B = 3.0 • C+ = 2.5 • C = 2.0</span>
+    </div>
+</div>
+{% endblock %}

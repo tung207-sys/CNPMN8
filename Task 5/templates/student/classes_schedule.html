@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Lớp đang học & Thời khóa biểu - Cổng sinh viên{% endblock %}
+
+{% block content %}
+<div class="sp-page-header">
+    <div>
+        <h1>Lớp đang học & Thời khóa biểu</h1>
+        <p>Danh sách lớp sinh hoạt, các học phần đăng ký và lịch học chi tiết trong tuần.</p>
+    </div>
+</div>
+
+<!-- Thông tin lớp sinh hoạt -->
+<div class="sp-card" style="margin-bottom: 20px;">
+    <div class="sp-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>Thông tin lớp sinh hoạt</span>
+    </div>
+
+    {% if class_info %}
+    <div class="sp-kv-grid">
+        <div class="sp-kv-item">
+            <label>Mã lớp</label>
+            <span>{{ class_info.class_id }}</span>
+        </div>
+        <div class="sp-kv-item">
+            <label>Tên lớp</label>
+            <span>{{ class_info.class_name }}</span>
+        </div>
+        <div class="sp-kv-item">
+            <label>Khóa tuyển sinh</label>
+            <span>Năm {{ class_info.year }}</span>
+        </div>
+        <div class="sp-kv-item">
+            <label>Cố vấn học tập</label>
+            <span>{{ student.advisor }}</span>
+        </div>
+    </div>
+    {% else %}
+    <p style="color: var(--sp-muted); font-size: 13.5px;">Sinh viên chưa được phân vào lớp sinh hoạt nào.</p>
+    {% endif %}
+</div>
+
+<!-- Danh sách học phần đang học -->
+<div class="sp-section-header">
+    <div class="sp-section-title-group">
+        <h3>Danh sách học phần đang học</h3>
+        <span class="sp-count-pill">{{ enrolled_classes|length }} học phần</span>
+    </div>
+</div>
+
+{% if enrolled_classes %}
+<div class="sp-course-grid">
+    {% for item in enrolled_classes %}
+    <div class="sp-course-card">
+        <div class="sp-course-top">
+            <span class="sp-course-code">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                {{ item.subject_id }}
+            </span>
+            <span class="sp-course-sem">{{ item.credits }} tín chỉ</span>
+        </div>
+        <div class="sp-course-name">{{ item.subject_name }}</div>
+        <div class="sp-course-teacher">GV: {{ item.teacher_name }}</div>
+
+        <div class="sp-course-meta">
+            <div class="sp-course-meta-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>{{ item.day }} • {{ item.time }}</span>
+            </div>
+            <div class="sp-course-meta-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{{ item.room }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="sp-card" style="margin-bottom: 24px;">
+    <p style="color: var(--sp-muted); font-size: 13.5px;">Hiện chưa có học phần nào trong học kỳ này.</p>
+</div>
+{% endif %}
+
+<!-- Bảng thời khóa biểu chi tiết tuần -->
+<div class="sp-card">
+    <div class="sp-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Thời khóa biểu chi tiết tuần</span>
+    </div>
+
+    {% if schedules %}
+    <div class="sp-table-wrap">
+        <table class="sp-table">
+            <thead>
+                <tr>
+                    <th>THỨ</th>
+                    <th>THỜI GIAN</th>
+                    <th>PHÒNG HỌC</th>
+                    <th>MÃ HỌC PHẦN</th>
+                    <th>TÊN MÔN HỌC</th>
+                    <th>GIẢNG VIÊN</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in schedules %}
+                <tr>
+                    <td style="font-weight: 700;">{{ s.day }}</td>
+                    <td>{{ s.time }}</td>
+                    <td><span class="sp-grade-pill">{{ s.room }}</span></td>
+                    <td class="col-code">{{ s.subject_id }}</td>
+                    <td class="col-name">{{ s.subject_name }}</td>
+                    <td>{{ s.teacher_name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: var(--sp-muted); font-size: 13.5px;">Chưa có lịch học được sắp xếp.</p>
+    {% endif %}
+</div>
+{% endblock %}
