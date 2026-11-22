@@ -1,0 +1,37 @@
+{% extends "grades_base.html" %}
+{% block title %}Kết quả học tập{% endblock %}
+{% block content %}
+<h1>Kết quả học tập</h1>
+<div class="mu" style="margin-bottom:18px">Xem GPA tích lũy và điểm theo học phần, học kỳ.</div>
+
+{% if role != "student" %}
+<form method="get" class="card row">
+  <div style="flex:1;min-width:240px"><label for="student_id">Sinh viên</label>
+    <select id="student_id" name="student_id" onchange="this.form.submit()">
+      {% for s in students %}<option value="{{ s.student_id }}" {{ 'selected' if s.student_id == sid }}>{{ s.student_id }} · {{ s.full_name }}</option>{% endfor %}
+    </select></div>
+</form>
+{% endif %}
+
+{% if not student %}
+<div class="alert">Không tìm thấy hồ sơ sinh viên cho tài khoản này, nên chưa có điểm để hiển thị.</div>
+{% else %}
+<div class="card row" style="gap:32px">
+  <div><h2>{{ student.full_name }}</h2><div class="mu">{{ student.student_id }} · {{ student.class_id }}</div></div>
+  <div><div class="sm mu">GPA tích lũy</div><div class="big" style="color:var(--ac)">{{ '%.2f'|format(data.gpa) }}</div><div class="sm mu">/ 4.00</div></div>
+  <div><div class="sm mu">Tín chỉ tích lũy</div><div class="big">{{ data.credits }} <span class="mu" style="font-size:16px">/ 130</span></div></div>
+</div>
+{% for b in data.blocks %}
+<div class="card">
+  <div class="row"><h2>{{ b.semester }}</h2><span class="pill">GPA học kỳ: {{ '%.2f'|format(b.gpa) if b.gpa is not none else '—' }} / 4.00</span></div>
+  <div class="tw"><table style="min-width:520px">
+    <tr><th>Học phần</th><th>Tín chỉ</th><th>Tổng kết</th><th>Hệ 4</th><th>Điểm chữ</th></tr>
+    {% for r in b.rows %}
+    <tr><td><b>{{ r.subject_name }}</b><div class="sm mu">{{ r.subject_id }}</div></td><td>{{ r.credits }}</td><td>{{ r.total }}</td><td>{{ '%.1f'|format(r.g4) }}</td><td><span class="pill ok">{{ r.letter }}</span></td></tr>
+    {% else %}<tr><td colspan="5" class="mu">Chưa có điểm trong học kỳ này.</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endfor %}
+<p class="sm mu">GPA = tổng (điểm hệ 4 × tín chỉ) / tổng tín chỉ, chỉ tính học phần đã có điểm.</p>
+{% endif %}
+{% endblock %}

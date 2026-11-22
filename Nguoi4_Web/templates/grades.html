@@ -1,0 +1,118 @@
+{% extends "grades_base.html" %}
+{% block title %}Nhập điểm &amp; bảng điểm{% endblock %}
+{% block content %}
+<h1>Nhập điểm &amp; bảng điểm</h1>
+<div class="mu" style="margin-bottom:18px">Nhập và cập nhật kết quả học tập của sinh viên theo học kỳ.</div>
+
+{% if not can_edit %}
+<div class="note"><b>Chế độ quản lý: không có quyền nhập hoặc sửa điểm.</b><br>Quản trị viên chỉ tra cứu và theo dõi bảng điểm. Việc nhập điểm do giảng viên thực hiện.</div>
+{% endif %}
+{% if errors %}<div class="alert"><b>Chưa lưu được.</b> Có {{ errors|length }} dòng chưa hợp lệ, xem thông báo màu đỏ ở cột Trạng thái và sửa lại.</div>{% endif %}
+
+<form method="get" id="pick" class="card">
+  <h2 style="margin-bottom:12px">Chọn bảng điểm</h2>
+  <div class="g3">
+    <div><label for="class_id">Lớp sinh hoạt</label>
+      <select id="class_id" name="class_id">{% for c in classes %}<option value="{{ c }}" {{ 'selected' if c == class_id }}>{{ c }}</option>{% endfor %}</select></div>
+    <div><label for="semester">Học kỳ / Năm học</label>
+      <select id="semester" name="semester">{% for s in semesters %}<option value="{{ s }}" {{ 'selected' if s == semester }}>{{ s }}</option>{% endfor %}</select></div>
+    <div><label for="subject_id">Học phần</label>
+      <select id="subject_id" name="subject_id">{% for c in courses %}<option value="{{ c.subject_id }}" {{ 'selected' if c.subject_id == course.subject_id }}>{{ c.subject_id }} · {{ c.subject_name }}</option>{% endfor %}</select></div>
+  </div>
+  <p class="sm mu" style="margin:12px 0 0">{{ course.credits }} tín chỉ · Thang điểm 10, tự động quy đổi hệ 4 và điểm chữ</p>
+</form>
+
+<div class="g4">
+  <div class="card"><div class="big">{{ stats.total }}</div><span class="mu">Sinh viên trong lớp</span></div>
+  <div class="card"><div class="big" id="n-saved" style="color:var(--ok)">{{ stats.saved }}</div><span class="mu">Đã lưu điểm</span></div>
+  <div class="card"><div class="big" id="n-unsaved" style="color:var(--wn)">0</div><span class="mu">Thay đổi chưa lưu</span></div>
+  <div class="card"><div class="big" id="n-none">{{ stats.none }}</div><span class="mu">Chưa nhập điểm</span></div>
+</div>
+
+<form method="post" id="sheet">
+<input type="hidden" name="class_id" value="{{ class_id }}">
+<input type="hidden" name="semester" value="{{ semester }}">
+<input type="hidden" name="subject_id" value="{{ course.subject_id }}">
+<div class="card">
+  <div class="row" style="margin-bottom:12px"><h2>Bảng điểm sinh viên</h2><span class="pill">{{ class_id }}</span></div>
+  <div class="row" style="margin-bottom:12px">
+    <input id="q" class="sp" style="min-width:200px" placeholder="Tìm theo mã sinh viên hoặc họ tên..." aria-label="Tìm sinh viên" form="none">
+    <select id="f" style="width:auto" form="none" aria-label="Lọc trạng thái">
+      <option value="">Tất cả trạng thái</option><option value="saved">Đã lưu</option><option value="unsaved">Chưa lưu</option><option value="none">Chưa nhập</option></select>
+  </div>
+  <div class="tw"><table>
+    <tr><th>Mã sinh viên</th><th>Họ và tên</th><th>Chuyên cần</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th>Tổng kết</th><th>Hệ 4</th><th>Điểm chữ</th><th>Trạng thái</th></tr>
+    {% for r in rows %}
+    <tr data-sid="{{ r.id }}" data-orig="{{ r.status }}" data-status="{{ r.status }}" class="{{ 'bad' if r.error }}">
+      <td><b style="color:var(--ac)">{{ r.id }}</b></td><td><b>{{ r.name }}</b></td>
+      {% for key in ("att", "mid", "fin") %}
+      <td><input class="gi" name="{{ key }}_{{ r.id }}" value="{{ r.vals[loop.index0] }}" data-orig="{{ r.orig[loop.index0] }}" inputmode="decimal" placeholder="Nhập" aria-label="{{ key }} {{ r.name }}" {{ 'readonly' if not can_edit }}></td>
+      {% endfor %}
+      <td class="tot">{{ r.calc[0] if r.calc else '—' }}</td>
+      <td class="g4v">{{ '%.1f'|format(r.calc[1]) if r.calc else '—' }}</td>
+      <td class="lt">{% if r.calc %}<span class="pill ok">{{ r.calc[2] }}</span>{% else %}—{% endif %}</td>
+      <td class="st">{% if r.error %}<span class="er">{{ r.error }}</span>{% elif r.status == 'saved' %}<span class="pill ok">Đã lưu</span>{% else %}<span class="mu">○ Chưa nhập</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  <p class="sm mu" style="margin-bottom:0">Quy đổi: A (8.5–10) = 4.0 · B (7.0–8.4) = 3.0 · C (5.5–6.9) = 2.0 · D (4.0–5.4) = 1.0 · F (dưới 4.0) = 0 &nbsp;|&nbsp; Tổng kết = 10% chuyên cần + 30% giữa kỳ + 60% cuối kỳ</p>
+</div>
+{% if can_edit %}
+<div class="card sav">
+  <span id="dmsg" class="mu">Chưa có thay đổi nào.</span>
+  <span class="row"><button type="button" class="btn g" id="cancel" disabled>Hủy thay đổi</button><button class="btn" id="save" disabled>Lưu cập nhật</button></span>
+</div>
+{% endif %}
+</form>
+
+<script>
+(function(){
+  // Quy đổi trùng với services/grade_service.py; nếu sửa bảng quy đổi ở Python thì sửa cả ở đây.
+  var G4={A:4,B:3,C:2,D:1,F:0};
+  function letter(x){return x>=8.5?"A":x>=7?"B":x>=5.5?"C":x>=4?"D":"F"}
+  var rows=[].slice.call(document.querySelectorAll("tr[data-sid]"));
+  function refresh(tr){
+    var ins=[].slice.call(tr.querySelectorAll(".gi")),
+        v=ins.map(function(i){return i.value.trim().replace(",",".")}),
+        dirty=ins.some(function(i){return i.value.trim()!==i.dataset.orig}),
+        ok=v.every(function(x){return x!==""&&!isNaN(Number(x))&&Number(x)>=0&&Number(x)<=10}),
+        tot=tr.querySelector(".tot"),g4=tr.querySelector(".g4v"),lt=tr.querySelector(".lt"),st=tr.querySelector(".st");
+    if(ok){var t=Number(v[0])*0.1+Number(v[1])*0.3+Number(v[2])*0.6,L=letter(t);
+      tot.textContent=t.toFixed(2);g4.textContent=G4[L].toFixed(1);lt.innerHTML='<span class="pill ok">'+L+'</span>'}
+    else{tot.textContent=g4.textContent=lt.textContent="—"}
+    tr.dataset.status=dirty?"unsaved":tr.dataset.orig;
+    tr.classList.toggle("unsaved",dirty);tr.classList.remove("bad");
+    ins.forEach(function(i){i.classList.toggle("dirty",i.value.trim()!==i.dataset.orig)});
+    st.innerHTML=dirty?'<b style="color:var(--wn)">● Chưa lưu</b>':tr.dataset.orig==="saved"?'<span class="pill ok">Đã lưu</span>':'<span class="mu">○ Chưa nhập</span>';
+  }
+  function count(){
+    var c={saved:0,unsaved:0,none:0};rows.forEach(function(r){c[r.dataset.status]++});
+    ["saved","unsaved","none"].forEach(function(k){document.getElementById("n-"+k).textContent=c[k]});
+    var s=document.getElementById("save"),cl=document.getElementById("cancel"),m=document.getElementById("dmsg");
+    if(s){s.disabled=cl.disabled=!c.unsaved;s.textContent=c.unsaved?"Lưu cập nhật ("+c.unsaved+")":"Lưu cập nhật";
+      m.textContent=c.unsaved?"Có "+c.unsaved+" thay đổi chưa được lưu. Điểm chỉ được ghi vào hồ sơ sau khi bạn lưu.":"Chưa có thay đổi nào."}
+    return c.unsaved;
+  }
+  function filter(){
+    var q=document.getElementById("q").value.toLowerCase(),f=document.getElementById("f").value;
+    rows.forEach(function(r){r.style.display=(r.textContent.toLowerCase().indexOf(q)>-1&&(!f||r.dataset.status===f))?"":"none"});
+  }
+  rows.forEach(function(r){r.addEventListener("input",function(){refresh(r);count();filter()})});
+  document.getElementById("q").addEventListener("input",filter);
+  document.getElementById("f").addEventListener("change",filter);
+  var cancel=document.getElementById("cancel");
+  if(cancel)cancel.onclick=function(){rows.forEach(function(r){r.querySelectorAll(".gi").forEach(function(i){i.value=i.dataset.orig});refresh(r)});count();filter()};
+  // đổi lớp / học kỳ / học phần: cảnh báo nếu còn thay đổi chưa lưu
+  var pick=document.getElementById("pick");
+  [].forEach.call(pick.querySelectorAll("select"),function(s){
+    var prev=s.value;
+    s.addEventListener("change",function(){
+      if(count()&&!confirm("Còn thay đổi chưa lưu. Đổi bảng điểm sẽ mất các thay đổi này. Tiếp tục?")){s.value=prev;return}
+      pick.submit()});
+  });
+  window.addEventListener("beforeunload",function(e){if(document.activeElement&&document.activeElement.type==="submit")return;if(count()){e.preventDefault();e.returnValue=""}});
+  document.getElementById("sheet").addEventListener("submit",function(){window.onbeforeunload=null});
+  rows.forEach(function(r){if(!r.classList.contains("bad"))refresh(r)});count();
+})();
+</script>
+{% endblock %}
