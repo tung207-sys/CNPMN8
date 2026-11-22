@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}Quản lý giảng viên{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="letter-spacing: -0.02em;">Quản lý giảng viên</h4>
+        <p class="text-muted mb-0" style="font-size: 0.85rem;">Quản lý hồ sơ giảng viên, khoa chuyên môn và học vị giảng dạy.</p>
+    </div>
+    <button type="button" class="btn btn-indigo d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalThemGV">
+        <i class="bi bi-plus-lg"></i> <span>Thêm giảng viên</span>
+    </button>
+</div>
+
+<!-- Thẻ Thống Kê -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Tổng số giảng viên</span>
+                <span class="brand-icon"><i class="bi bi-person-badge"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ "%02d"|format(tong_gv) }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">Đang công tác tại các khoa chuyên môn</div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Số lượng khoa / bộ môn</span>
+                <span class="brand-icon"><i class="bi bi-diagram-3"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ "%02d"|format(so_khoa) }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">Năm học 2026 – 2027</div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Danh Sách Giảng Viên -->
+<div class="card-panel mb-4">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold" style="font-size: 0.95rem;">Danh sách giảng viên</span>
+            <span class="badge-soft-indigo">{{ ds_gv|length }} giảng viên</span>
+        </div>
+    </div>
+
+    <form method="GET" class="p-3 border-bottom bg-white">
+        <div class="row g-2">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ q }}" class="form-control border-start-0 ps-0" placeholder="Tìm theo mã GV hoặc họ tên..." style="font-size: 0.85rem;">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-building"></i></span>
+                    <input type="text" name="khoa" value="{{ khoa_q }}" list="dsKhoaGoiY" class="form-control border-start-0 ps-0" placeholder="Tìm theo khoa (VD: Khoa Công nghệ thông tin)..." style="font-size: 0.85rem;">
+                    <datalist id="dsKhoaGoiY">
+                        {% for k in ds_khoa %}
+                        <option value="{{ k }}">
+                            {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-indigo flex-grow-1">Tìm kiếm</button>
+                {% if q or khoa_q %}
+                <a href="{{ url_for('quan_ly_giang_vien') }}" class="btn btn-outline-clean">Xóa lọc</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Mã GV</th>
+                    <th>Họ và tên / Email</th>
+                    <th>Khoa / Bộ môn</th>
+                    <th>Học vị</th>
+                    <th>Chuyên môn</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gv in ds_gv %}
+                <tr>
+                    <td><span class="code-link">{{ gv.ma_gv }}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-initials">{{ gv.initials }}</div>
+                            <div>
+                                <div class="fw-semibold text-dark">{{ gv.ho_ten }}</div>
+                                <div class="text-muted" style="font-size: 0.76rem;">{{ gv.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="fw-medium">{{ gv.khoa }}</td>
+                    <td><span class="badge-soft-indigo">{{ gv.hoc_vi }}</span></td>
+                    <td class="text-muted">{{ gv.chuyen_mon }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-link action-icon btn-edit-gv" title="Sửa giảng viên"
+                                data-bs-toggle="modal" data-bs-target="#modalSuaGV"
+                                data-url="{{ url_for('sua_giang_vien', id=gv.id) }}"
+                                data-ma="{{ gv.ma_gv }}"
+                                data-ten="{{ gv.ho_ten }}"
+                                data-email="{{ gv.email }}"
+                                data-khoa="{{ gv.khoa }}"
+                                data-hocvi="{{ gv.hoc_vi }}"
+                                data-chuyenmon="{{ gv.chuyen_mon }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="{{ url_for('xoa_giang_vien', id=gv.id) }}" class="action-icon delete" title="Xóa giảng viên" onclick="return confirm('Xác nhận xóa giảng viên {{ gv.ho_ten }}?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">Không tìm thấy giảng viên nào phù hợp với điều kiện tìm kiếm.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-3 text-muted" style="font-size: 0.8rem;">
+        Hiển thị {{ ds_gv|length }} giảng viên
+    </div>
+</div>
+
+<!-- Modal Thêm Giảng Viên -->
+<div class="modal fade" id="modalThemGV" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Thêm giảng viên mới</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã giảng viên</label>
+                        <input type="text" name="ma_gv" class="form-control" placeholder="VD: GV202405" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Họ và tên</label>
+                        <input type="text" name="ho_ten" class="form-control" placeholder="VD: Phạm Minh Tuấn" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="VD: tuan.pm@example.edu.vn" required>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Khoa / Bộ môn</label>
+                        <input type="text" name="khoa" class="form-control" placeholder="VD: Công nghệ thông tin" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Học vị</label>
+                        <input type="text" name="hoc_vi" class="form-control" placeholder="VD: Thạc sĩ / Tiến sĩ" required>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Lĩnh vực chuyên môn</label>
+                    <input type="text" name="chuyen_mon" class="form-control" placeholder="VD: Trí tuệ nhân tạo & Khoa học dữ liệu" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Lưu giảng viên</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Thông Tin Giảng Viên -->
+<div class="modal fade" id="modalSuaGV" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" id="formSuaGV" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Chỉnh sửa thông tin giảng viên</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã giảng viên</label>
+                        <input type="text" name="ma_gv" id="edit_gv_ma" class="form-control" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Họ và tên</label>
+                        <input type="text" name="ho_ten" id="edit_gv_ten" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Email</label>
+                    <input type="email" name="email" id="edit_gv_email" class="form-control" required>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Khoa / Bộ môn</label>
+                        <input type="text" name="khoa" id="edit_gv_khoa" class="form-control" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Học vị</label>
+                        <input type="text" name="hoc_vi" id="edit_gv_hocvi" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Lĩnh vực chuyên môn</label>
+                    <input type="text" name="chuyen_mon" id="edit_gv_chuyenmon" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Cập nhật giảng viên</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.btn-edit-gv').forEach(btn => {
+    btn.addEventListener('click', function () {
+    document.getElementById('formSuaGV').action = this.dataset.url;
+    document.getElementById('edit_gv_ma').value = this.dataset.ma;
+    document.getElementById('edit_gv_ten').value = this.dataset.ten;
+    document.getElementById('edit_gv_email').value = this.dataset.email;
+    document.getElementById('edit_gv_khoa').value = this.dataset.khoa;
+    document.getElementById('edit_gv_hocvi').value = this.dataset.hocvi;
+    document.getElementById('edit_gv_chuyenmon').value = this.dataset.chuyenmon;
+    });
+    });
+</script>
+{% endblock %}

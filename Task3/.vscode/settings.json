@@ -1,0 +1,10 @@
+{
+    "python.defaultInterpreterPath": "python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/Task3"
+    ],
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.vs": true
+    }
+}
