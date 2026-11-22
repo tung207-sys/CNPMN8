@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống Quản lý Sinh viên</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body {
+            background-color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-box { width: 100%; max-width: 420px; }
+        .eyebrow { color: #5243E8; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+        h1 { color: #0F172A; font-size: 28px; font-weight: 700; margin: 4px 0 6px; }
+        .subtitle { color: #64748B; font-size: 14px; margin-bottom: 24px; }
+
+        .label { display: block; color: #1E293B; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+        /* 3 thẻ chọn vai trò */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .role-card {
+            border: 1.5px solid #E2E8F0;
+            background: #FFFFFF;
+            color: #64748B;
+            border-radius: 10px;
+            padding: 12px 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .role-card.active {
+            border-color: #5243E8;
+            background: #F3F2FF;
+            color: #5243E8;
+        }
+
+        /* Ô nhập liệu */
+        .field-group { margin-bottom: 16px; }
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 0 12px;
+            height: 44px;
+            background: #FFFFFF;
+        }
+        .input-wrap:focus-within { border-color: #5243E8; }
+        .input-wrap.error { border-color: #EF4444; }
+        .input-wrap span.icon { color: #94A3B8; font-size: 15px; margin-right: 8px; }
+        .input-wrap input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            color: #0F172A;
+            background: transparent;
+        }
+        .eye-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #64748B;
+            font-size: 15px;
+        }
+        .error-text { color: #EF4444; font-size: 12px; margin-top: 5px; }
+
+        /* Ghi nhớ & Quên mật khẩu */
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 13px;
+        }
+        .remember-label { display: flex; align-items: center; gap: 6px; color: #64748B; cursor: pointer; }
+        .remember-label input { accent-color: #5243E8; width: 15px; height: 15px; }
+        .forgot-link { color: #5243E8; font-weight: 600; text-decoration: none; cursor: pointer; }
+
+        /* Khung báo lỗi tổng quát */
+        .alert-box {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #DC2626;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        /* Nút Đăng nhập */
+        .btn-submit {
+            width: 100%;
+            height: 46px;
+            background: #5243E8;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-submit:hover { background: #4338CA; }
+
+        .security-note {
+            text-align: center;
+            color: #94A3B8;
+            font-size: 12px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="eyebrow">ĐĂNG NHẬP HỆ THỐNG</div>
+        <h1 id="page-title">Đăng nhập</h1>
+        <p class="subtitle" id="page-subtitle">Chọn vai trò và đăng nhập để tiếp tục.</p>
+
+        <form method="POST" action="/login">
+            <input type="hidden" name="role" id="role-input" value="{{ role }}">
+
+            <label class="label">Bạn đăng nhập với vai trò</label>
+            <div class="role-grid">
+                <button type="button" class="role-card" id="btn-student" onclick="selectRole('student')">
+                    🎓 Sinh viên <span class="check"></span>
+                </button>
+                <button type="button" class="role-card" id="btn-teacher" onclick="selectRole('teacher')">
+                    🎓 Giảng viên <span class="check"></span>
+                </button>
+                <button type="button" class="role-card" id="btn-admin" onclick="selectRole('admin')">
+                    🛡️ Quản trị viên <span class="check"></span>
+                </button>
+            </div>
+
+            <div class="field-group">
+                <label class="label" id="username-label" for="username">Mã sinh viên / Tên đăng nhập</label>
+                <div class="input-wrap {% if error_field in ['username', 'both'] %}error{% endif %}">
+                    <span class="icon">👤</span>
+                    <input type="text" id="username" name="username" value="{{ username }}" placeholder="SV2024001" autofocus>
+                </div>
+                {% if error_field == 'username' %}
+                    <div class="error-text">{{ error_msg }}</div>
+                {% endif %}
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="password">Mật khẩu</label>
+                <div class="input-wrap {% if error_field in ['password', 'both'] %}error{% endif %}">
+                    <span class="icon">🔒</span>
+                    <input type="password" id="password" name="password" placeholder="••••••••••••">
+                    <button type="button" class="eye-btn" onclick="togglePassword()">👁</button>
+                </div>
+                {% if error_field in ['password', 'both'] %}
+                    <div class="error-text">{{ error_msg }}</div>
+                {% endif %}
+            </div>
+
+            <div class="options-row">
+                <label class="remember-label">
+                    <input type="checkbox" name="remember" {% if remembered %}checked{% endif %}>
+                    Ghi nhớ đăng nhập
+                </label>
+                <a class="forgot-link" onclick="alert('Vui lòng liên hệ Phòng Đào tạo để cấp lại mật khẩu.')">Quên mật khẩu?</a>
+            </div>
+
+            {% if error_field == 'none' and error_msg %}
+                <div class="alert-box">⚠ {{ error_msg }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn-submit">Đăng nhập &nbsp;→</button>
+        </form>
+
+        <div class="security-note">🔒 Thông tin của bạn luôn được bảo mật.</div>
+    </div>
+
+    <script>
+        const roleConfig = {
+            student: {
+                title: "Đăng nhập",
+                subtitle: "Chọn vai trò và đăng nhập để tiếp tục.",
+                label: "Mã sinh viên / Tên đăng nhập",
+                placeholder: "SV2024001"
+            },
+            teacher: {
+                title: "Đăng nhập giảng viên",
+                subtitle: "Chào mừng bạn đến với cổng giảng viên.",
+                label: "Mã giảng viên / Tên đăng nhập",
+                placeholder: "GV2026008"
+            },
+            admin: {
+                title: "Đăng nhập",
+                subtitle: "Chọn vai trò và đăng nhập để tiếp tục.",
+                label: "Tên đăng nhập quản trị viên",
+                placeholder: "Nhập tên đăng nhập"
+            }
+        };
+
+        function selectRole(role) {
+            document.getElementById("role-input").value = role;
+
+            const cfg = roleConfig[role];
+            document.getElementById("page-title").innerText = cfg.title;
+            document.getElementById("page-subtitle").innerText = cfg.subtitle;
+            document.getElementById("username-label").innerText = cfg.label;
+            document.getElementById("username").placeholder = cfg.placeholder;
+
+            ["student", "teacher", "admin"].forEach(r => {
+                const btn = document.getElementById("btn-" + r);
+                const check = btn.querySelector(".check");
+                if (r === role) {
+                    btn.classList.add("active");
+                    check.innerText = "✓";
+                } else {
+                    btn.classList.remove("active");
+                    check.innerText = "";
+                }
+            });
+        }
+
+        function togglePassword() {
+            const pw = document.getElementById("password");
+            pw.type = (pw.type === "password") ? "text" : "password";
+        }
+
+        selectRole("{{ role }}");
+    </script>
+</body>
+</html>
