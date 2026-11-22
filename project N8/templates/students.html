@@ -1,0 +1,369 @@
+{% extends 'academic_base.html' %}
+{% block title %}Quản lý sinh viên — Cổng quản trị{% endblock %}
+{% block breadcrumb %}Quản lý sinh viên{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="letter-spacing: -0.02em;">Quản lý sinh viên</h4>
+        <p class="text-muted mb-0" style="font-size: 0.85rem;">Quản lý hồ sơ, lớp học và thông tin sinh viên tại một nơi.</p>
+    </div>
+    <button type="button" class="btn btn-indigo d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalThemSV">
+        <i class="bi bi-plus-lg"></i> <span>Thêm sinh viên</span>
+    </button>
+</div>
+
+<!-- 3 Thẻ Thống Kê -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Tổng số sinh viên</span>
+                <span class="brand-icon"><i class="bi bi-people"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ total_students }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">{{ total_students }} đang học · Dữ liệu hệ thống</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Tổng số lớp</span>
+                <span class="brand-icon"><i class="bi bi-building"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ classes|length }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">Các lớp sinh hoạt hiện có</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Sinh viên theo lớp</span>
+                <span class="text-muted" style="font-size: 0.76rem;">{{ total_students }} sinh viên</span>
+            </div>
+            <div class="row g-2 my-1">
+                {% for item in class_stats[:3] %}
+                <div class="col-4">
+                    <div class="p-2 border rounded-3 bg-light">
+                        <div class="d-flex justify-content-between" style="font-size: 0.7rem;">
+                            <span class="text-muted fw-semibold text-truncate">{{ item.class_id }}</span>
+                            <span class="fw-bold text-dark">{{ item.count }}</span>
+                        </div>
+                        <div class="mt-1" style="height: 10px; border-radius: 4px; background: #4F46E5;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Danh Sách Sinh Viên -->
+<div class="card-panel mb-4">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold" style="font-size: 0.95rem;">Danh sách sinh viên</span>
+            <span class="badge-soft-indigo">{{ students|length }} sinh viên</span>
+        </div>
+        <a href="{{ url_for('student_view.index') }}" class="btn btn-outline-clean d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-clockwise"></i> <span>Hiển thị tất cả</span>
+        </a>
+    </div>
+
+    <form method="GET" action="{{ url_for('student_view.index') }}" class="p-3 border-bottom bg-white">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <select name="search_type" class="form-select" style="font-size: 0.85rem;">
+                    <option value="id" {% if search_type == 'id' %}selected{% endif %}>Tìm theo Mã SV</option>
+                    <option value="name" {% if search_type == 'name' %}selected{% endif %}>Tìm theo Họ tên</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="keyword" value="{{ keyword }}" class="form-control border-start-0 ps-0" placeholder="Nhập mã sinh viên hoặc họ tên..." style="font-size: 0.85rem;">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-indigo w-100">Tìm kiếm</button>
+            </div>
+            <div class="col-md-3">
+                <select name="class_id" class="form-select" onchange="this.form.submit()" style="font-size: 0.85rem;">
+                    <option value="Tất cả" {% if selected_class == 'Tất cả' %}selected{% endif %}>Tất cả lớp</option>
+                    {% for cls in classes %}
+                    <option value="{{ cls }}" {% if selected_class == cls %}selected{% endif %}>{{ cls }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Mã sinh viên</th>
+                    <th>Họ và tên / Email</th>
+                    <th>Lớp</th>
+                    <th>Giới tính</th>
+                    <th>Ngày sinh</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sv in students %}
+                {% set _initials = (sv.full_name.split()[-1][:2] if sv.full_name else 'SV')|upper %}
+                <tr>
+                    <td><span class="code-link">{{ sv.student_id }}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-initials">{{ _initials }}</div>
+                            <div>
+                                <div class="fw-semibold text-dark">{{ sv.full_name }}</div>
+                                <div class="text-muted" style="font-size: 0.76rem;">{{ sv.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="fw-semibold">{{ sv.class_id }}</td>
+                    <td>{{ sv.gender }}</td>
+                    <td>{{ sv.dob }}</td>
+                    <td><span class="badge-status-active">Đang học</span></td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-link action-icon btn-view-sv" title="Xem chi tiết"
+                                data-bs-toggle="modal" data-bs-target="#modalXemSV"
+                                data-id="{{ sv.student_id }}"
+                                data-name="{{ sv.full_name }}"
+                                data-email="{{ sv.email }}"
+                                data-class="{{ sv.class_id }}"
+                                data-gender="{{ sv.gender }}"
+                                data-dob="{{ sv.dob }}"
+                                data-address="{{ sv.address }}">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-link action-icon btn-edit-sv" title="Sửa sinh viên"
+                                data-bs-toggle="modal" data-bs-target="#modalSuaSV"
+                                data-id="{{ sv.student_id }}"
+                                data-name="{{ sv.full_name }}"
+                                data-email="{{ sv.email }}"
+                                data-class="{{ sv.class_id }}"
+                                data-gender="{{ sv.gender }}"
+                                data-dob="{{ sv.dob }}"
+                                data-address="{{ sv.address }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <form method="POST" action="{{ url_for('student_view.delete_student') }}" class="d-inline" onsubmit="return confirm('Xác nhận xóa sinh viên {{ sv.full_name }} ({{ sv.student_id }})?')">
+                            <input type="hidden" name="student_id" value="{{ sv.student_id }}">
+                            <button type="submit" class="btn btn-link action-icon delete" title="Xóa sinh viên">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">Không tìm thấy sinh viên nào phù hợp.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-3 text-muted" style="font-size: 0.8rem;">
+        Hiển thị {{ students|length }} sinh viên
+    </div>
+</div>
+
+<!-- Modal Xem Chi Tiết Sinh Viên -->
+<div class="modal fade" id="modalXemSV" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Hồ sơ chi tiết sinh viên</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="font-size: 0.86rem;">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Mã sinh viên</span>
+                    <span class="fw-bold" style="color: #4F46E5;" id="view_sv_id"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Họ và tên</span>
+                    <span class="fw-semibold" id="view_sv_name"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Email</span>
+                    <span id="view_sv_email"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Lớp sinh hoạt</span>
+                    <span class="fw-semibold" id="view_sv_class"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Giới tính</span>
+                    <span id="view_sv_gender"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Ngày sinh</span>
+                    <span id="view_sv_dob"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Địa chỉ</span>
+                    <span id="view_sv_address"></span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted">Trạng thái</span>
+                    <span class="badge-status-active">Đang học</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm Sinh Viên -->
+<div class="modal fade" id="modalThemSV" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('student_view.add_student') }}" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Thêm sinh viên mới</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã sinh viên</label>
+                        <input type="text" name="student_id" class="form-control" placeholder="VD: SV009" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Họ và tên</label>
+                        <input type="text" name="full_name" class="form-control" placeholder="VD: Trần Thị B" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="VD: tranthib@gmail.com" required>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Lớp</label>
+                        <select name="class_id" class="form-select" required>
+                            {% for cls in classes %}
+                            <option value="{{ cls }}">{{ cls }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Giới tính</label>
+                        <select name="gender" class="form-select" required>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Ngày sinh</label>
+                        <input type="text" name="dob" class="form-control" placeholder="VD: 10/10/2007" required>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Địa chỉ</label>
+                    <input type="text" name="address" class="form-control" placeholder="VD: Quận 1, TP.HCM" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Lưu sinh viên</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Sinh Viên -->
+<div class="modal fade" id="modalSuaSV" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('student_view.update_student') }}" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Chỉnh sửa thông tin sinh viên</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã sinh viên</label>
+                        <input type="text" name="student_id" id="edit_sv_id" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Họ và tên</label>
+                        <input type="text" name="full_name" id="edit_sv_name" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Email</label>
+                    <input type="email" name="email" id="edit_sv_email" class="form-control" required>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Lớp</label>
+                        <select name="class_id" id="edit_sv_class" class="form-select" required>
+                            {% for cls in classes %}
+                            <option value="{{ cls }}">{{ cls }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Giới tính</label>
+                        <select name="gender" id="edit_sv_gender" class="form-select" required>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Ngày sinh</label>
+                        <input type="text" name="dob" id="edit_sv_dob" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Địa chỉ</label>
+                    <input type="text" name="address" id="edit_sv_address" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Cập nhật sinh viên</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.btn-view-sv').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById('view_sv_id').textContent = this.dataset.id;
+            document.getElementById('view_sv_name').textContent = this.dataset.name;
+            document.getElementById('view_sv_email').textContent = this.dataset.email;
+            document.getElementById('view_sv_class').textContent = this.dataset.class;
+            document.getElementById('view_sv_gender').textContent = this.dataset.gender;
+            document.getElementById('view_sv_dob').textContent = this.dataset.dob;
+            document.getElementById('view_sv_address').textContent = this.dataset.address;
+        });
+    });
+
+    document.querySelectorAll('.btn-edit-sv').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById('edit_sv_id').value = this.dataset.id;
+            document.getElementById('edit_sv_name').value = this.dataset.name;
+            document.getElementById('edit_sv_email').value = this.dataset.email;
+            document.getElementById('edit_sv_class').value = this.dataset.class;
+            document.getElementById('edit_sv_gender').value = this.dataset.gender;
+            document.getElementById('edit_sv_dob').value = this.dataset.dob;
+            document.getElementById('edit_sv_address').value = this.dataset.address;
+        });
+    });
+</script>
+{% endblock %}

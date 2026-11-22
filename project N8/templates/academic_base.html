@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cổng quản trị — Quản lý đào tạo{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+<div class="uf-layout">
+    <!-- Sidebar bên trái -->
+    <aside class="uf-sidebar">
+        <div>
+            <a href="{{ url_for('portal') }}" class="uf-portal-box">
+                <span class="uf-portal-icon"><i class="bi bi-shield-check"></i></span>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.9rem; line-height: 1.2;">Cổng quản trị</div>
+                    <div class="text-muted" style="font-size: 0.72rem;">Quản lý đào tạo</div>
+                </div>
+            </a>
+
+            <div class="uf-nav-label">Không gian làm việc</div>
+            <nav>
+                <a href="{{ url_for('portal') }}" class="uf-nav-link {% if request.endpoint == 'portal' or request.path == '/portal' %}active{% endif %}">
+                    <i class="bi bi-grid"></i>
+                    <span>Tổng quan</span>
+                </a>
+                <a href="/students/" class="uf-nav-link {% if request.path.startswith('/students') %}active{% endif %}">
+                    <i class="bi bi-people"></i>
+                    <span>Quản lý sinh viên</span>
+                </a>
+                <a href="{{ url_for('academic.quan_ly_lop') }}" class="uf-nav-link {% if request.endpoint == 'academic.quan_ly_lop' %}active{% endif %}">
+                    <i class="bi bi-building"></i>
+                    <span>Quản lý lớp học</span>
+                </a>
+                <a href="{{ url_for('academic.quan_ly_giang_vien') }}" class="uf-nav-link {% if request.endpoint == 'academic.quan_ly_giang_vien' %}active{% endif %}">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Quản lý giảng viên</span>
+                </a>
+                <a href="{{ url_for('academic.quan_ly_mon_hoc') }}" class="uf-nav-link {% if request.endpoint == 'academic.quan_ly_mon_hoc' %}active{% endif %}">
+                    <i class="bi bi-journal-bookmark"></i>
+                    <span>Quản lý môn học</span>
+                </a>
+                <a href="{{ url_for('grades.sheet') }}" class="uf-nav-link {% if request.path.startswith('/grades') %}active{% endif %}">
+                     <i class="bi bi-card-checklist"></i>
+                     <span>Quản lý điểm</span>
+                 </a>
+            </nav>
+        </div>
+
+        <div class="uf-sidebar-footer">
+            <a href="/change-password" class="uf-nav-link">
+                <i class="bi bi-key"></i>
+                <span>Thay đổi mật khẩu</span>
+            </a>
+            <a href="/logout" class="uf-nav-link text-danger">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Đăng xuất</span>
+            </a>
+            <div class="px-3 pt-2 text-muted" style="font-size: 0.72rem;">
+                Hệ thống Đào tạo · Phiên bản 2.0
+            </div>
+        </div>
+    </aside>
+
+    <!-- Khung nội dung bên phải -->
+    <div class="uf-main-wrapper">
+        <header class="uf-topbar">
+            <div class="d-flex align-items-center gap-2" style="font-size: 0.83rem;">
+                <a href="{{ url_for('portal') }}" class="text-muted text-decoration-none">
+                    <i class="bi bi-house-door me-1"></i>Quản trị
+                </a>
+                <i class="bi bi-chevron-right text-muted" style="font-size: 0.7rem;"></i>
+                <span class="fw-semibold text-dark">{% block breadcrumb %}Tổng quan{% endblock %}</span>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-none d-sm-flex align-items-center gap-2 px-3 py-1 border rounded-3 bg-white" style="font-size: 0.8rem; color: #475569;">
+                    <i class="bi bi-calendar3 text-muted"></i>
+                    <span>Năm học 2026 – 2027</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar-initials" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                        {{ (session.get('full_name', 'QT')[:2])|upper }}
+                    </div>
+                    <div class="d-none d-md-block" style="line-height: 1.2;">
+                        <div class="fw-semibold" style="font-size: 0.82rem;">{{ session.get('full_name', 'Quản trị viên') }}</div>
+                        <div class="text-muted" style="font-size: 0.72rem;">Phòng đào tạo</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="uf-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show rounded-3 mb-3" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="uf-footer">
+            <span>Dữ liệu minh họa · Thông tin chỉ phục vụ mục đích thiết kế</span>
+            <span>Cổng quản trị đào tạo</span>
+        </footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

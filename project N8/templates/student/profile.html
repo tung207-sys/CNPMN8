@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Thông tin cá nhân - Cổng sinh viên{% endblock %}
+
+{% block content %}
+<!-- Header tiêu đề + nút Đổi mật khẩu -->
+<div class="sp-page-header">
+    <div>
+        <h1>Thông tin cá nhân</h1>
+        <p>Hồ sơ, lớp học và kết quả học tập của bạn.</p>
+    </div>
+    <a href="/change-password" class="sp-btn-outline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <span>Thay đổi mật khẩu</span>
+    </a>
+</div>
+
+<!-- Hero Profile Card -->
+<div class="sp-hero-card">
+    <div class="sp-hero-left">
+        <div class="sp-avatar-lg">{{ student.full_name[0] }}</div>
+        <div>
+            <div class="sp-hero-name-row">
+                <h2>{{ student.full_name }}</h2>
+                <span class="sp-status-dot" title="Đang học"></span>
+            </div>
+            <div class="sp-hero-sub">{{ student.student_id }} • {{ student.major }}</div>
+            <div class="sp-hero-sub-muted">{{ student.email }}</div>
+        </div>
+    </div>
+
+    <div class="sp-hero-metrics">
+        <div class="sp-metric-box">
+            <span class="sp-metric-label">GPA tích lũy</span>
+            <div>
+                <span class="sp-metric-gpa">{{ "%.2f"|format(gpa_info.gpa_4) }}</span>
+                <span class="sp-metric-suffix">/ 4.00</span>
+            </div>
+        </div>
+
+        <div class="sp-metric-box" style="min-width: 140px;">
+            <span class="sp-metric-label">Tín chỉ tích lũy</span>
+            <div>
+                <span class="sp-metric-credits">{{ gpa_info.total_credits }}</span>
+                <span class="sp-metric-suffix">/ {{ student.target_credits }}</span>
+            </div>
+            {% set pct = (gpa_info.total_credits / student.target_credits * 100) if student.target_credits else 0 %}
+            <div class="sp-progress-track">
+                <div class="sp-progress-fill" style="width: {{ pct if pct <= 100 else 100 }}%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lưới 2 cột Thông tin cá nhân & Thông tin đào tạo -->
+<div class="sp-info-two-col">
+    <!-- Cột trái -->
+    <div class="sp-card">
+        <div class="sp-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Thông tin cá nhân & liên hệ</span>
+        </div>
+
+        <div class="sp-kv-grid">
+            <div class="sp-kv-item">
+                <label>Ngày sinh</label>
+                <span>{{ student.dob }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Giới tính</label>
+                <span>{{ student.gender }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Dân tộc</label>
+                <span>{{ student.ethnicity }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Quốc tịch</label>
+                <span>{{ student.nationality }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Số điện thoại</label>
+                <span>{{ student.phone }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Nơi sinh</label>
+                <span>{{ student.birthplace }}</span>
+            </div>
+            <div class="sp-kv-item span-2">
+                <label>Email sinh viên</label>
+                <span>{{ student.email }}</span>
+            </div>
+            <div class="sp-kv-item span-2">
+                <label>Địa chỉ thường trú</label>
+                <span>{{ student.address }}</span>
+            </div>
+            <div class="sp-kv-item span-2">
+                <label>Chỗ ở hiện tại</label>
+                <span>{{ student.current_address }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cột phải -->
+    <div class="sp-card">
+        <div class="sp-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span>Thông tin đào tạo</span>
+        </div>
+
+        <div class="sp-kv-grid">
+            <div class="sp-kv-item">
+                <label>Mã sinh viên</label>
+                <span>{{ student.student_id }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Lớp sinh hoạt</label>
+                <span>Lớp {{ student.class_id }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Khoa</label>
+                <span>{{ student.faculty }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Ngành</label>
+                <span>{{ student.major }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Bậc đào tạo</label>
+                <span>{{ student.education_level }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Hình thức đào tạo</label>
+                <span>{{ student.training_type }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Khóa học</label>
+                <span>{{ student.cohort }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Năm học hiện tại</label>
+                <span>{{ student.academic_year }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Cố vấn học tập</label>
+                <span>{{ student.advisor }}</span>
+            </div>
+            <div class="sp-kv-item">
+                <label>Trạng thái</label>
+                <span>{{ student.status }}</span>
+            </div>
+        </div>
+
+        <div class="sp-callout-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Cần cập nhật thông tin? Vui lòng liên hệ phòng đào tạo để được hỗ trợ.</span>
+        </div>
+    </div>
+</div>
+
+<!-- Section: Lớp đang học -->
+<div class="sp-section-header">
+    <div class="sp-section-title-group">
+        <h3>Lớp đang học</h3>
+        <span class="sp-count-pill">{{ enrolled_classes|length }} lớp</span>
+    </div>
+</div>
+
+<div class="sp-course-grid">
+    {% for item in enrolled_classes %}
+    <div class="sp-course-card">
+        <div class="sp-course-top">
+            <span class="sp-course-code">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                {{ item.subject_id }}
+            </span>
+            <span class="sp-course-sem">{{ item.semester_label }}</span>
+        </div>
+        <div class="sp-course-name">{{ item.subject_name }}</div>
+        <div class="sp-course-teacher">{{ item.teacher_name }}</div>
+
+        <div class="sp-course-meta">
+            <div class="sp-course-meta-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>{{ item.day }} • {{ item.time }}</span>
+            </div>
+            <div class="sp-course-meta-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{{ item.room }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Section: Kết quả học tập -->
+<div class="sp-section-header">
+    <div class="sp-section-title-group">
+        <h3>Kết quả học tập</h3>
+    </div>
+    <a href="{{ url_for('portal.student_export_grades') }}" class="sp-btn-outline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Tải bảng điểm</span>
+    </a>
+</div>
+
+<div class="sp-card">
+    <!-- 4 Thẻ chọn học kỳ -->
+    <div class="sp-semester-grid">
+        {% for sem in semester_cards %}
+        <a href="{{ url_for('portal.student_profile', sem=sem.code) }}#grades-section" class="sp-sem-card {% if selected_sem == sem.code %}active{% endif %}">
+            <span class="sp-sem-label">{{ sem.short }}</span>
+            <div>
+                <span class="sp-sem-gpa">{{ sem.gpa }}</span>
+                <span class="sp-sem-sub">/ 4.00</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div id="grades-section" class="sp-grade-header">
+        <div>
+            <h4>{{ active_sem_full }}</h4>
+            <span>Đã cập nhật</span>
+        </div>
+        <span class="sp-status-dot"></span>
+    </div>
+
+    <div class="sp-table-wrap">
+        <table class="sp-table">
+            <thead>
+                <tr>
+                    <th>MÃ HỌC PHẦN</th>
+                    <th>TÊN HỌC PHẦN</th>
+                    <th class="col-center">TÍN CHỈ</th>
+                    <th class="col-center">ĐIỂM HỆ 10</th>
+                    <th class="col-center">ĐIỂM HỆ 4</th>
+                    <th class="col-center">ĐIỂM CHỮ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in grade_list %}
+                <tr>
+                    <td class="col-code">{{ g.subject_id }}</td>
+                    <td class="col-name">{{ g.subject_name }}</td>
+                    <td class="col-center">{{ g.credits }}</td>
+                    <td class="col-center">{{ "%.2f"|format(g.total) }}</td>
+                    <td class="col-center">{{ "%.2f"|format(g.point_4) }}</td>
+                    <td class="col-center">
+                        <span class="sp-grade-pill {% if g.letter in ['B', 'C+', 'C'] %}alt{% endif %}">{{ g.letter }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="sp-table-footer">
+        <span>Thang điểm: A = 4.0 • B = 3.0 • C = 2.0 • D = 1.0 • F = 0</span>
+        <span>Dữ liệu đồng bộ từ hệ thống đào tạo</span>
+    </div>
+</div>
+{% endblock %}

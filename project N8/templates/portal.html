@@ -1,0 +1,174 @@
+{% extends 'academic_base.html' %}
+{% block title %}Tổng quan — Cổng quản trị{% endblock %}
+{% block breadcrumb %}Tổng quan{% endblock %}
+
+{% block content %}
+{% set _tong_sv = tong_sv if tong_sv is defined else (total_students if total_students is defined else 0) %}
+{% set _tong_lop = tong_lop if tong_lop is defined else (total_classes if total_classes is defined else 0) %}
+{% set _dang_hoc = sv_dang_hoc if sv_dang_hoc is defined else (active_students if active_students is defined else _tong_sv) %}
+{% set _bao_luu = sv_bao_luu if sv_bao_luu is defined else (reserved_students if reserved_students is defined else 0) %}
+{% set _ds_lop = thong_ke_lop if thong_ke_lop is defined else (class_stats if class_stats is defined else (ds_lop if ds_lop is defined else [])) %}
+{% set _ty_le = ((_dang_hoc / _tong_sv * 100)|round(1)) if _tong_sv > 0 else 0 %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="letter-spacing: -0.02em;">Tổng quan</h4>
+        <p class="text-muted mb-0" style="font-size: 0.85rem;">Theo dõi quy mô sinh viên, lớp học và tình hình đào tạo.</p>
+    </div>
+    <a href="/students/" class="btn btn-indigo d-flex align-items-center gap-2">
+        <i class="bi bi-people"></i> <span>Quản lý sinh viên</span>
+    </a>
+</div>
+
+<!-- 3 Thẻ Thống Kê -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Tổng số sinh viên</span>
+                <span class="brand-icon"><i class="bi bi-people"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ _tong_sv }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">{{ _dang_hoc }} đang học · {{ _bao_luu }} bảo lưu</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Tổng số lớp</span>
+                <span class="brand-icon"><i class="bi bi-building"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ "%02d"|format(_tong_lop) }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">Khóa tuyển sinh 2024 – 2028</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-panel p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-medium" style="font-size: 0.82rem;">Sinh viên đang học</span>
+                <span class="brand-icon"><i class="bi bi-mortarboard"></i></span>
+            </div>
+            <div class="fs-2 fw-bold my-1">{{ _dang_hoc }}</div>
+            <div class="text-muted" style="font-size: 0.78rem;">Chiếm {{ _ty_le }}% tổng quy mô sinh viên</div>
+        </div>
+    </div>
+</div>
+
+<!-- Biểu Đồ Phân Bổ & Tình Trạng -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card-panel p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold" style="font-size: 0.95rem;">Số lượng sinh viên theo lớp</span>
+                    <span class="badge-soft-indigo">{{ _ds_lop|length }} lớp</span>
+                </div>
+
+                {% if _ds_lop %}
+                <div class="d-flex flex-column gap-3 my-3">
+                    {% for item in _ds_lop %}
+                    {% set _so_sv = item.tong_so if item.tong_so is defined else (item.si_so if item.si_so is defined else (item.count if item.count is defined else 0)) %}
+                    {% set _pct = ((_so_sv / _tong_sv * 100)|round(1)) if _tong_sv > 0 else 0 %}
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-semibold text-dark" style="width: 85px; font-size: 0.82rem;">{{ item.ma_lop }}</span>
+                        <div class="progress flex-grow-1" style="height: 18px; background-color: #F1F5F9; border-radius: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ _pct }}%; background-color: #4F46E5; border-radius: 6px;"></div>
+                        </div>
+                        <span class="fw-bold text-end" style="width: 30px; font-size: 0.84rem;">{{ _so_sv }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">Chưa có dữ liệu thống kê lớp học.</div>
+                {% endif %}
+            </div>
+
+            <div class="pt-2 text-muted d-flex align-items-center gap-2" style="font-size: 0.76rem;">
+                <span style="width: 10px; height: 10px; border-radius: 3px; background: #4F46E5; display: inline-block;"></span>
+                <span>Tổng số sinh viên · Bao gồm sinh viên đang học và bảo lưu</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-panel p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="fw-bold mb-3" style="font-size: 0.95rem;">Tình trạng sinh viên</div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.83rem;">
+                        <span class="fw-medium">Đang học</span>
+                        <span class="fw-bold">{{ _dang_hoc }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px; background-color: #F1F5F9; border-radius: 999px;">
+                        <div class="progress-bar" style="width: {{ _ty_le }}%; background-color: #10B981; border-radius: 999px;"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.83rem;">
+                        <span class="fw-medium">Bảo lưu</span>
+                        <span class="fw-bold">{{ _bao_luu }}</span>
+                    </div>
+                    {% set _pct_bl = ((_bao_luu / _tong_sv * 100)|round(1)) if _tong_sv > 0 else 0 %}
+                    <div class="progress" style="height: 8px; background-color: #F1F5F9; border-radius: 999px;">
+                        <div class="progress-bar" style="width: {{ _pct_bl }}%; background-color: #F59E0B; border-radius: 999px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-top" style="border-color: #F1F5F9 !important;">
+                <div class="text-uppercase fw-semibold text-muted mb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Phạm vi thống kê</div>
+                <div class="fw-semibold text-dark" style="font-size: 0.82rem;">Năm học 2026 – 2027 · Toàn trường</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Thống Kê Chi Tiết Theo Lớp -->
+<div class="card-panel mb-4">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <span class="fw-bold" style="font-size: 0.95rem;">Thống kê chi tiết theo lớp</span>
+        <a href="{{ url_for('academic.quan_ly_lop') }}" class="code-link" style="font-size: 0.82rem;">
+            Xem danh sách lớp <i class="bi bi-arrow-up-right"></i>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Mã lớp</th>
+                    <th>Tên lớp</th>
+                    <th>Tổng số</th>
+                    <th>Đang học</th>
+                    <th>Bảo lưu</th>
+                    <th>Tỷ trọng</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in _ds_lop %}
+                {% set _so_sv = item.tong_so if item.tong_so is defined else (item.si_so if item.si_so is defined else 0) %}
+                {% set _dh = item.dang_hoc if item.dang_hoc is defined else _so_sv %}
+                {% set _bl = item.bao_luu if item.bao_luu is defined else 0 %}
+                {% set _tt = item.ty_trong if item.ty_trong is defined else (((_so_sv / _tong_sv * 100)|round(1)|string ~ '%') if _tong_sv > 0 else '0%') %}
+                <tr>
+                    <td><a href="{{ url_for('academic.quan_ly_lop', selected=item.ma_lop) }}" class="code-link">{{ item.ma_lop }}</a></td>
+                    <td class="fw-semibold text-dark">{{ item.ten_lop }}</td>
+                    <td class="fw-semibold">{{ _so_sv }}</td>
+                    <td><span class="badge-status-active">{{ _dh }}</span></td>
+                    <td><span class="badge-soft-indigo" style="background: #FEF3C7; color: #D97706;">{{ _bl }}</span></td>
+                    <td class="text-muted fw-medium">{{ _tt }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">Chưa có dữ liệu lớp học để thống kê.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

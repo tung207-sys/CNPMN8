@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Quản lý điểm{% endblock %}</title>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--tx:#161c34;--mu:#6b7390;--bd:#e7e9f2;--ac:#5046e5;--so:#eeedff;--ok:#12805c;--okb:#e3f6ee;--wn:#b45f06;--wnb:#fff6e0;--er:#d6334a}
+@media(prefers-color-scheme:dark){:root{--bg:#10131f;--card:#181c2c;--tx:#eceefa;--mu:#9aa1bd;--bd:#2a3047;--ac:#8c85ff;--so:#25254a;--okb:#143a2d;--wnb:#3a2f12;--ok:#5fd6a6;--wn:#f0b45a;--er:#ff7a8c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,"Segoe UI",sans-serif}
+a{color:var(--ac);text-decoration:none}button,input,select{font:inherit;color:inherit}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:16px;margin:0}.mu{color:var(--mu)}.sm{font-size:12px}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--card);border-right:1px solid var(--bd);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.brand{background:var(--so);color:var(--ac);font-weight:600;padding:10px 12px;border-radius:8px;margin-bottom:12px}
+.nav{padding:9px 12px;border-radius:8px;color:var(--mu);display:block}.nav.on{background:var(--so);color:var(--ac);font-weight:600}
+.grow{flex:1}.pg{padding:24px 28px;max-width:1180px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px}
+label{display:block;font-weight:600;font-size:12px;margin-bottom:6px}
+input,select{width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer;width:auto}
+.btn.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.g4 .card{margin:0}
+.big{font-size:28px;font-weight:600}.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:760px}
+th{text-align:left;font-size:11px;color:var(--mu);padding:10px 8px;background:var(--bg)}td{padding:8px;border-top:1px solid var(--bd)}
+tr.unsaved td{background:var(--wnb)}tr.bad td{background:var(--wnb)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;background:var(--so);color:var(--ac)}.pill.ok{background:var(--okb);color:var(--ok)}
+.gi{width:70px;padding:6px 8px}.gi.dirty{border-color:var(--wn)}.er{color:var(--er);font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sp{flex:1}
+.flash{background:var(--okb);color:var(--ok);padding:10px 14px;border-radius:8px;margin-bottom:16px}.note{background:var(--so);color:var(--ac);padding:12px 14px;border-radius:10px;margin-bottom:16px}
+.alert{background:var(--wnb);color:var(--wn);padding:12px 14px;border-radius:10px;margin-bottom:16px}
+.sav{position:sticky;bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+@media(max-width:900px){.app{grid-template-columns:1fr}.g3,.g4{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand">Quản lý điểm</div>
+  {% if role in ("teacher", "admin") %}<a class="nav {{ 'on' if active == 'sheet' }}" href="{{ url_for('grades.sheet') }}">Nhập điểm &amp; bảng điểm</a>{% endif %}
+  <a class="nav {{ 'on' if active == 'results' }}" href="{{ url_for('grades.results') }}">Kết quả học tập (GPA)</a>
+  <div class="grow"></div>
+  <a class="nav" href="{{ url_for('portal') }}">← Về trang chính</a>
+  <a class="nav" href="{{ url_for('change_password') }}">Thay đổi mật khẩu</a>
+  <a class="nav" href="{{ url_for('logout') }}">Đăng xuất</a>
+</aside>
+<main class="pg">
+  {% with msgs = get_flashed_messages() %}{% for m in msgs %}<div class="flash">{{ m }}</div>{% endfor %}{% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</div>
+</body>
+</html>

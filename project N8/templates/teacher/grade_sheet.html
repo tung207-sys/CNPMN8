@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Điểm & bảng điểm - Cổng giảng viên{% endblock %}
+
+{% block content %}
+<div class="tp-page-header">
+    <div>
+        <h1>Điểm & bảng điểm lớp học phần</h1>
+        <p>Hiển thị bảng điểm tổng hợp của sinh viên theo lớp, môn học và học kỳ được phân công.</p>
+    </div>
+</div>
+
+<!-- Bộ lọc lớp & môn học -->
+<div class="tp-card">
+    <form method="GET" action="{{ url_for('portal.teacher_grade_sheet') }}" class="tp-filter-grid">
+        <div class="tp-field">
+            <label for="class_id">Lớp được phân công</label>
+            <select id="class_id" name="class_id" class="tp-select" required>
+                {% for c in assigned_classes %}
+                <option value="{{ c.class_id }}" {% if selected_class == c.class_id %}selected{% endif %}>
+                    {{ c.class_id }} - {{ c.class_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="tp-field">
+            <label for="subject_id">Môn học phụ trách</label>
+            <select id="subject_id" name="subject_id" class="tp-select" required>
+                {% for item in assigned_subjects %}
+                <option value="{{ item.subject_id }}" {% if selected_subject == item.subject_id %}selected{% endif %}>
+                    {{ item.subject_id }} - {{ item.subject_name }} ({{ item.class_id }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="tp-field">
+            <label for="semester">Học kỳ</label>
+            <select id="semester" name="semester" class="tp-select">
+                <option value="ALL" {% if selected_semester == 'ALL' %}selected{% endif %}>Tất cả học kỳ</option>
+                <option value="HK1-2024" {% if selected_semester == 'HK1-2024' %}selected{% endif %}>HK1-2024</option>
+                <option value="HK2-2024" {% if selected_semester == 'HK2-2024' %}selected{% endif %}>HK2-2024</option>
+                <option value="HK1-2025" {% if selected_semester == 'HK1-2025' %}selected{% endif %}>HK1-2025</option>
+                <option value="HK2-2025" {% if selected_semester == 'HK2-2025' %}selected{% endif %}>HK2-2025</option>
+            </select>
+        </div>
+
+        <button type="submit" class="tp-btn-primary">Xem bảng điểm</button>
+    </form>
+</div>
+
+<!-- Bảng điểm chi tiết -->
+<div class="tp-card">
+   <div class="tp-card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <span class="tp-card-title">Bảng điểm chi tiết ({{ selected_class }} • {{ selected_subject }})</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="tp-card-badge-link">Dữ liệu đồng bộ từ hệ thống điểm</span>
+            {% if grade_sheet is not none %}
+            <a href="{{ url_for('grades.sheet', class_id=selected_class, subject_id=selected_subject, semester=(selected_semester if selected_semester != 'ALL' else None)) }}"
+               style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; color: #fff; background: #4F46E5; border-radius: 7px; text-decoration: none;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Sửa điểm</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if grade_sheet is none %}
+    <div class="tp-alert">
+        Bạn không có quyền xem bảng điểm của lớp hoặc môn học này.
+    </div>
+    {% elif grade_sheet %}
+    <div class="tp-table-wrap">
+        <table class="tp-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">STT</th>
+                    <th>MÃ SINH VIÊN</th>
+                    <th>HỌ VÀ TÊN</th>
+                    <th>HỌC KỲ</th>
+                    <th>CHUYÊN CẦN</th>
+                    <th>GIỮA KỲ</th>
+                    <th>CUỐI KỲ</th>
+                    <th>TỔNG KẾT</th>
+                    <th>HỆ 4</th>
+                    <th>ĐIỂM CHỮ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in grade_sheet %}
+                <tr>
+                    <td style="color: var(--tp-muted); font-weight: 600;">{{ "%02d"|format(loop.index) }}</td>
+                    <td><span class="tp-code-link">{{ row.student.student_id }}</span></td>
+                    <td><strong>{{ row.student.full_name }}</strong></td>
+                    {% if row.has_grade %}
+                    <td>{{ row.semester }}</td>
+                    <td>{{ "%.1f"|format(row.attendance) }}</td>
+                    <td>{{ "%.1f"|format(row.midterm) }}</td>
+                    <td>{{ "%.1f"|format(row.final) }}</td>
+                    <td><strong>{{ "%.2f"|format(row.total) }}</strong></td>
+                    <td>{{ "%.2f"|format(row.point_4) }}</td>
+                    <td><span class="tp-grade-badge">{{ row.letter }}</span></td>
+                    {% else %}
+                    <td colspan="7" style="color: var(--tp-muted); font-style: italic;">Chưa có dữ liệu điểm cho học kỳ này</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: var(--tp-muted); font-size: 13.5px;">Lớp học phần hiện chưa có sinh viên hoặc chưa có dữ liệu điểm.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Danh sách sinh viên - Cổng giảng viên{% endblock %}
+
+{% block content %}
+<div class="tp-page-header">
+    <div>
+        <h1>Danh sách sinh viên</h1>
+        <p>Tra cứu sinh viên trong các lớp được phân công giảng dạy.</p>
+    </div>
+    <a href="{{ url_for('portal.teacher_export_students', class_id=selected_class, keyword=keyword) }}" class="tp-btn-outline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Xuất danh sách</span>
+    </a>
+</div>
+
+<!-- Bộ lọc & Tìm kiếm -->
+<div class="tp-card">
+    <form method="GET" action="{{ url_for('portal.teacher_students') }}" class="tp-filter-grid">
+        <div class="tp-field">
+            <label for="keyword">Tìm kiếm sinh viên</label>
+            <div class="tp-input-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="keyword" name="keyword" value="{{ keyword }}" class="tp-input has-icon" placeholder="Họ tên hoặc mã sinh viên...">
+            </div>
+        </div>
+
+        <div class="tp-field">
+            <label for="class_id">Lọc theo lớp</label>
+            <select id="class_id" name="class_id" class="tp-select">
+                <option value="">Tất cả lớp phụ trách</option>
+                {% for c in assigned_classes %}
+                <option value="{{ c.class_id }}" {% if selected_class == c.class_id %}selected{% endif %}>
+                    {{ c.class_id }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="tp-field">
+            <label for="subject_id">Môn học phụ trách</label>
+            <select id="subject_id" name="subject_id" class="tp-select">
+                {% for s in assigned_subjects %}
+                <option value="{{ s.subject_id }}" {% if selected_subject == s.subject_id %}selected{% endif %}>
+                    {{ s.subject_id }} • {{ s.subject_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="tp-btn-primary">Tìm kiếm</button>
+    </form>
+</div>
+
+<!-- Banner Lớp hiện tại -->
+{% if active_banner %}
+<div class="tp-class-banner">
+    <div>
+        <div class="tp-class-banner-title">{{ active_banner.class_id }} - {{ student_list|length }} sinh viên</div>
+        <div class="tp-class-banner-sub">{{ active_banner.subject_name }} • {{ active_banner.credits }} tín chỉ • Học kỳ 1 / 2025–2026</div>
+    </div>
+    <a href="{{ url_for('portal.teacher_grade_sheet', class_id=active_banner.class_id, subject_id=active_banner.subject_id) }}" class="tp-btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Xem bảng điểm lớp này</span>
+    </a>
+</div>
+{% endif %}
+
+<!-- Bảng Sinh viên trong lớp -->
+<div class="tp-card">
+    <div class="tp-card-header">
+        <span class="tp-card-title">Sinh viên trong lớp</span>
+        <span style="font-size: 12.5px; color: var(--tp-muted);">
+            Đang hiển thị {% if selected_class %}lớp {{ selected_class }}{% else %}tất cả lớp phụ trách{% endif %}
+        </span>
+    </div>
+
+    {% if student_list %}
+    <div class="tp-table-wrap">
+        <table class="tp-table">
+            <thead>
+                <tr>
+                    <th style="width: 64px;">STT</th>
+                    <th>MÃ SINH VIÊN</th>
+                    <th>HỌ VÀ TÊN</th>
+                    <th>LỚP</th>
+                    <th>EMAIL SINH VIÊN</th>
+                    <th style="text-align: right;">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in student_list %}
+                <tr>
+                    <td style="color: var(--tp-muted); font-weight: 600;">{{ "%02d"|format(loop.index) }}</td>
+                    <td><span class="tp-code-link">{{ st.student_id }}</span></td>
+                    <td><strong>{{ st.full_name }}</strong></td>
+                    <td>{{ st.class_id }}</td>
+                    <td style="color: var(--tp-text-sub);">{{ st.email }}</td>
+                    <td style="text-align: right;">
+                        <a href="{{ url_for('portal.teacher_grade_sheet', class_id=st.class_id, subject_id=selected_subject) }}" class="tp-link-indigo">
+                            Xem bảng điểm ↗
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tp-table-footer">
+        <span>Hiển thị 1–{{ student_list|length }} trong {{ student_list|length }} sinh viên</span>
+        <div class="tp-pagination">
+            <span class="tp-page-pill">‹</span>
+            <span class="tp-page-pill active">1</span>
+            <span class="tp-page-pill">›</span>
+        </div>
+    </div>
+    {% else %}
+    <p style="color: var(--tp-muted); font-size: 13.5px;">Không tìm thấy sinh viên nào phù hợp với điều kiện lọc.</p>
+    {% endif %}
+</div>
+{% endblock %}

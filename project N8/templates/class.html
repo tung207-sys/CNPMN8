@@ -1,0 +1,434 @@
+{% extends 'academic_base.html' %}
+{% block title %}Quản lý lớp học{% endblock %}
+{% block breadcrumb %}Quản lý lớp{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="letter-spacing: -0.02em;">Quản lý lớp</h4>
+        <p class="text-muted mb-0" style="font-size: 0.85rem;">Quản lý thông tin lớp học và phân công môn học, giảng viên giảng dạy cho từng lớp.</p>
+    </div>
+    <button type="button" class="btn btn-indigo d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalThemLop">
+        <i class="bi bi-plus-lg"></i> <span>Thêm lớp học</span>
+    </button>
+</div>
+
+<!-- Bảng Danh Sách Lớp Học -->
+<div class="card-panel mb-4">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold" style="font-size: 0.95rem;">Danh sách lớp học</span>
+            <span class="badge-soft-indigo">{{ ds_lop|length }} lớp học</span>
+        </div>
+    </div>
+
+    <form method="GET" class="p-3 border-bottom bg-white">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" name="q" value="{{ q }}" class="form-control border-start-0 ps-0" placeholder="Tìm theo mã lớp hoặc tên lớp (hỗ trợ chữ thường / không dấu)..." style="font-size: 0.85rem;">
+            {% if q %}
+            <a href="{{ url_for('academic.quan_ly_lop') }}" class="btn btn-outline-clean">Xóa lọc</a>
+            {% endif %}
+            <button type="submit" class="btn btn-indigo">Tìm kiếm</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Mã lớp</th>
+                    <th>Tên lớp</th>
+                    <th>Ngành đào tạo</th>
+                    <th>Sĩ số</th>
+                    <th>Lịch sinh hoạt</th>
+                    <th>Phòng</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lop in ds_lop %}
+                <tr class="{{ lop.row_class }}">
+                    <td>
+                        <a href="{{ url_for('academic.quan_ly_lop', selected=lop.ma_lop) }}" class="code-link">{{ lop.ma_lop }}</a>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ lop.ten_lop }}</div>
+                        <div class="text-muted" style="font-size: 0.76rem;">{{ lop.khoa_hoc }}</div>
+                    </td>
+                    <td class="fw-medium">{{ lop.nganh }}</td>
+                    <td class="fw-semibold">{{ lop.si_so }}</td>
+                    <td>{{ lop.lich_hoc }}</td>
+                    <td>{{ lop.phong }}</td>
+                    <td class="text-end">
+                        <a href="{{ url_for('academic.quan_ly_lop', selected=lop.ma_lop) }}" class="text-decoration-none fw-medium me-2" style="color: #4F46E5; font-size: 0.8rem;">
+                            <i class="bi bi-journal-plus"></i> Phân công
+                        </a>
+                        <button type="button" class="btn btn-link action-icon btn-edit-lop" title="Sửa lớp"
+                                data-bs-toggle="modal" data-bs-target="#modalSuaLop"
+                                data-url="{{ url_for('academic.sua_lop', id=lop.id) }}"
+                                data-ma="{{ lop.ma_lop }}"
+                                data-ten="{{ lop.ten_lop }}"
+                                data-nganh="{{ lop.nganh }}"
+                                data-khoa="{{ lop.khoa_hoc }}"
+                                data-siso="{{ lop.si_so }}"
+                                data-lich="{{ lop.lich_hoc }}"
+                                data-phong="{{ lop.phong }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="{{ url_for('academic.xoa_lop', id=lop.id) }}" class="action-icon delete" title="Xóa lớp" onclick="return confirm('Xác nhận xóa lớp {{ lop.ma_lop }}?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-3 d-flex justify-content-between align-items-center" style="font-size: 0.8rem;">
+        <span class="text-muted">Hiển thị {{ ds_lop|length }} lớp học</span>
+        {% if selected_lop %}
+        <span class="fw-semibold" style="color: #4F46E5;">Đang chọn: {{ selected_lop.ma_lop }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 2 Cột Chi Tiết Lớp & Phân Công Giảng Dạy -->
+{% if selected_lop %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-panel p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-bold" style="font-size: 0.95rem;">Thông tin lớp</span>
+                <span class="badge-status-active">Đang đào tạo</span>
+            </div>
+
+            <div class="fw-bold fs-4 mb-1" style="color: #4F46E5;">{{ selected_lop.ma_lop }}</div>
+            <div class="fw-bold fs-6 text-dark">{{ selected_lop.ten_lop }}</div>
+            <div class="text-muted mb-3" style="font-size: 0.78rem;">{{ selected_lop.khoa_hoc }}</div>
+
+            <hr class="my-3" style="border-color: #F1F5F9;">
+
+            <div class="d-flex flex-column gap-2 mb-3" style="font-size: 0.83rem;">
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Ngành đào tạo</span>
+                    <span class="fw-semibold">{{ selected_lop.nganh }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Sĩ số lớp</span>
+                    <span class="fw-semibold">{{ selected_lop.si_so }} sinh viên</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Lịch học</span>
+                    <span class="fw-semibold">{{ selected_lop.lich_hoc }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Phòng học</span>
+                    <span class="fw-semibold">{{ selected_lop.phong }}</span>
+                </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <button type="button" class="btn btn-outline-clean w-100 btn-edit-lop"
+                            data-bs-toggle="modal" data-bs-target="#modalSuaLop"
+                            data-url="{{ url_for('academic.sua_lop', id=selected_lop.id) }}"
+                            data-ma="{{ selected_lop.ma_lop }}"
+                            data-ten="{{ selected_lop.ten_lop }}"
+                            data-nganh="{{ selected_lop.nganh }}"
+                            data-khoa="{{ selected_lop.khoa_hoc }}"
+                            data-siso="{{ selected_lop.si_so }}"
+                            data-lich="{{ selected_lop.lich_hoc }}"
+                            data-phong="{{ selected_lop.phong }}">
+                        <i class="bi bi-pencil me-1"></i> Sửa thông tin
+                    </button>
+                </div>
+                <div class="col-6">
+                    <a href="{{ url_for('academic.xoa_lop', id=selected_lop.id) }}" class="btn w-100" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 10px; font-size: 0.82rem; font-weight: 500;" onclick="return confirm('Xác nhận xóa lớp {{ selected_lop.ma_lop }}?')">
+                        <i class="bi bi-trash me-1"></i> Xóa lớp
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-3" style="background: #F8FAFC; border: 1px solid #F1F5F9;">
+                <div class="fw-semibold mb-1" style="font-size: 0.82rem;">Tóm tắt học kỳ | HK1 2026 – 2027</div>
+                <div class="text-muted" style="font-size: 0.78rem;">
+                    Tổng số môn đã phân công: <strong class="text-dark">{{ selected_lop.phan_congs|length }} môn</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card-panel p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="fw-bold" style="font-size: 0.95rem;">Môn học & giảng viên lớp {{ selected_lop.ma_lop }}</div>
+                        <div class="text-muted" style="font-size: 0.78rem;">Chọn môn học và giảng viên phụ trách cho lớp</div>
+                    </div>
+                    <button type="button" class="btn btn-indigo d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalPhanCong">
+                        <i class="bi bi-plus-lg"></i> <span>Thêm môn vào lớp</span>
+                    </button>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchCourseItem" class="form-control border-start-0 ps-0" placeholder="Lọc nhanh môn học hoặc giảng viên trong lớp..." style="font-size: 0.85rem;">
+                </div>
+
+                {% if selected_lop.phan_congs %}
+                {% for pc in selected_lop.phan_congs %}
+                <div class="d-flex align-items-center justify-content-between py-2 px-3 mb-2 border rounded-3 course-row-item">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{{ url_for('academic.quan_ly_mon_hoc', selected=pc.mon_hoc.ma_mon) }}" class="code-link" style="width: 85px;">{{ pc.mon_hoc.ma_mon }}</a>
+                        <div>
+                            <div class="fw-semibold text-dark">{{ pc.mon_hoc.ten_mon }} <span class="text-muted fw-normal">({{ pc.mon_hoc.so_tin_chi }} tín chỉ)</span></div>
+                            <div class="text-muted" style="font-size: 0.76rem;">
+                                Giảng viên: <strong>{{ pc.giang_vien.hoc_vi }} {{ pc.giang_vien.ho_ten }}</strong> | Khoa {{ pc.giang_vien.khoa }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="badge-status-active me-2">Đã phân công</span>
+                        <button type="button" class="btn btn-link action-icon btn-edit-pc" title="Sửa môn học & giảng viên"
+                                data-bs-toggle="modal" data-bs-target="#modalSuaPhanCong"
+                                data-url="{{ url_for('academic.sua_phan_cong', id=pc.id) }}"
+                                data-monid="{{ pc.mon_hoc_id }}"
+                                data-gvid="{{ pc.giang_vien_id }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="{{ url_for('academic.xoa_phan_cong', id=pc.id) }}" class="action-icon delete" title="Gỡ khỏi lớp" onclick="return confirm('Gỡ môn {{ pc.mon_hoc.ten_mon }} khỏi lớp này?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-journal-x fs-3 d-block mb-2"></i>
+                    Lớp này chưa có môn học nào. Bấm <strong>Thêm môn vào lớp</strong> để phân công.
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="pt-3 d-flex justify-content-between align-items-center text-muted" style="font-size: 0.8rem;">
+                <span>Hiển thị {{ selected_lop.phan_congs|length }} môn học</span>
+                <span>HK1 2026 – 2027</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Thêm Lớp Học -->
+<div class="modal fade" id="modalThemLop" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Thêm lớp học mới</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã lớp</label>
+                        <input type="text" name="ma_lop" class="form-control" placeholder="VD: CNTT2403" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Tên lớp</label>
+                        <input type="text" name="ten_lop" class="form-control" placeholder="VD: Công nghệ thông tin 3" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Ngành đào tạo</label>
+                    <input type="text" name="nganh" class="form-control" placeholder="VD: Công nghệ thông tin" required>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-medium">Khóa học / Hệ đào tạo</label>
+                        <input type="text" name="khoa_hoc" class="form-control" placeholder="VD: Khóa 2024 – 2028 | Hệ chính quy" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Sĩ số</label>
+                        <input type="number" name="si_so" class="form-control" placeholder="VD: 45" min="1" required>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Lịch học</label>
+                        <input type="text" name="lich_hoc" class="form-control" placeholder="VD: Thứ 6 | 10:15 – 11:00" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Phòng học</label>
+                        <input type="text" name="phong" class="form-control" placeholder="VD: B301" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Lưu lớp học</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Lớp Học -->
+<div class="modal fade" id="modalSuaLop" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" id="formSuaLop" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Chỉnh sửa thông tin lớp học</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã lớp</label>
+                        <input type="text" name="ma_lop" id="edit_lop_ma" class="form-control" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Tên lớp</label>
+                        <input type="text" name="ten_lop" id="edit_lop_ten" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Ngành đào tạo</label>
+                    <input type="text" name="nganh" id="edit_lop_nganh" class="form-control" required>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-medium">Khóa học / Hệ đào tạo</label>
+                        <input type="text" name="khoa_hoc" id="edit_lop_khoa" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Sĩ số</label>
+                        <input type="number" name="si_so" id="edit_lop_siso" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Lịch học</label>
+                        <input type="text" name="lich_hoc" id="edit_lop_lich" class="form-control" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Phòng học</label>
+                        <input type="text" name="phong" id="edit_lop_phong" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Cập nhật lớp</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Thêm Môn Học & Phân Công Giảng Viên Vào Lớp -->
+{% if selected_lop %}
+<div class="modal fade" id="modalPhanCong" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('academic.them_phan_cong') }}" class="modal-content">
+            <input type="hidden" name="lop_id" value="{{ selected_lop.id }}">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Thêm môn học vào lớp {{ selected_lop.ma_lop }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Chọn môn học (kèm số tín chỉ)</label>
+                    <select name="mon_hoc_id" class="form-select" required>
+                        {% for m in ds_mon %}
+                        <option value="{{ m.id }}">{{ m.ma_mon }} - {{ m.ten_mon }} ({{ m.so_tin_chi }} tín chỉ)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Chọn giảng viên giảng dạy</label>
+                    <select name="giang_vien_id" class="form-select" required>
+                        {% for gv in ds_gv %}
+                        <option value="{{ gv.id }}">{{ gv.ma_gv }} - {{ gv.hoc_vi }} {{ gv.ho_ten }} ({{ gv.khoa }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Lưu phân công</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Sửa Phân Công -->
+<div class="modal fade" id="modalSuaPhanCong" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" id="formSuaPc" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Chỉnh sửa môn học & giảng viên</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Môn học (kèm số tín chỉ)</label>
+                    <select name="mon_hoc_id" id="edit_pc_mon" class="form-select" required>
+                        {% for m in ds_mon %}
+                        <option value="{{ m.id }}">{{ m.ma_mon }} - {{ m.ten_mon }} ({{ m.so_tin_chi }} tín chỉ)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Giảng viên giảng dạy</label>
+                    <select name="giang_vien_id" id="edit_pc_gv" class="form-select" required>
+                        {% for gv in ds_gv %}
+                        <option value="{{ gv.id }}">{{ gv.ma_gv }} - {{ gv.hoc_vi }} {{ gv.ho_ten }} ({{ gv.khoa }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const searchInput = document.getElementById('searchCourseItem');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const kw = this.value.toLowerCase();
+            document.querySelectorAll('.course-row-item').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(kw) ? 'flex' : 'none';
+            });
+        });
+    }
+
+    document.querySelectorAll('.btn-edit-lop').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById('formSuaLop').action = this.dataset.url;
+            document.getElementById('edit_lop_ma').value = this.dataset.ma;
+            document.getElementById('edit_lop_ten').value = this.dataset.ten;
+            document.getElementById('edit_lop_nganh').value = this.dataset.nganh;
+            document.getElementById('edit_lop_khoa').value = this.dataset.khoa;
+            document.getElementById('edit_lop_siso').value = this.dataset.siso;
+            document.getElementById('edit_lop_lich').value = this.dataset.lich;
+            document.getElementById('edit_lop_phong').value = this.dataset.phong;
+        });
+    });
+
+    document.querySelectorAll('.btn-edit-pc').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById('formSuaPc').action = this.dataset.url;
+            document.getElementById('edit_pc_mon').value = this.dataset.monid;
+            document.getElementById('edit_pc_gv').value = this.dataset.gvid;
+        });
+    });
+</script>
+{% endblock %}

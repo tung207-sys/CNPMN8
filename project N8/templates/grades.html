@@ -1,0 +1,793 @@
+{% extends "academic_base.html" if role == "admin" else "base.html" %}
+{% block title %}Nhập điểm & bảng điểm - Cổng giảng viên{% endblock %}
+{% block breadcrumb %}Nhập điểm & bảng điểm{% endblock %}
+
+{% block content %}
+<style>
+  /* Style bổ sung đồng bộ với hệ thống tp-* / sp-* trong style.css */
+  .gs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .gs-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+  }
+  .gs-header p {
+    font-size: 13.5px;
+    color: #475569;
+    margin: 0;
+  }
+  .gs-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .gs-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #FFFFFF;
+    color: #334155;
+    border: 1px solid #E2E8F0;
+    border-radius: 9px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .gs-btn-outline:hover:not(:disabled) {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+  }
+  .gs-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #4F46E5;
+    color: #FFFFFF;
+    border: 1px solid #4F46E5;
+    border-radius: 9px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .gs-btn-primary:hover:not(:disabled) {
+    background: #4338CA;
+    border-color: #4338CA;
+  }
+  .gs-btn-outline:disabled,
+  .gs-btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Card chung */
+  .gs-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+  .gs-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .gs-card-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0;
+  }
+  .gs-card-title svg {
+    width: 17px;
+    height: 17px;
+    color: #4F46E5;
+    flex-shrink: 0;
+  }
+  .gs-badge-indigo {
+    background: #EEF2FF;
+    color: #4F46E5;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  /* Lưới chọn lớp học phần */
+  .gs-filter-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .gs-field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+  .gs-select,
+  .gs-search-input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid #E2E8F0;
+    border-radius: 9px;
+    padding: 0 12px;
+    font-size: 13.5px;
+    color: #0F172A;
+    background: #FFFFFF;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .gs-select:focus,
+  .gs-search-input:focus {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  .gs-meta-strip {
+    margin-top: 14px;
+    background: #F5F7FF;
+    border: 1px solid #E0E7FF;
+    border-radius: 10px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #4338CA;
+    font-weight: 500;
+  }
+
+  /* 4 thẻ thống kê */
+  .gs-stats-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .gs-stat-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .gs-stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .gs-stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .gs-stat-sub {
+    font-size: 12px;
+    color: #94A3B8;
+  }
+  .gs-stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    color: #0F172A;
+  }
+  .gs-stat-num.ok { color: #059669; }
+  .gs-stat-num.wn { color: #D97706; }
+  .gs-stat-num.mu { color: #64748B; }
+
+  /* Thanh tìm kiếm & lọc trong card bảng điểm */
+  .gs-table-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .gs-search-wrap {
+    position: relative;
+    min-width: 240px;
+  }
+  .gs-search-wrap svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: #94A3B8;
+  }
+  .gs-search-wrap .gs-search-input {
+    padding-left: 33px;
+  }
+
+  /* Bảng điểm */
+  .gs-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #F1F5F9;
+    border-radius: 10px;
+  }
+  .gs-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 860px;
+    font-size: 13.5px;
+  }
+  .gs-table th {
+    background: #F8FAFC;
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 11px 12px;
+    text-align: left;
+    border-bottom: 1px solid #E2E8F0;
+    white-space: nowrap;
+  }
+  .gs-table th.center,
+  .gs-table td.center {
+    text-align: center;
+  }
+  .gs-table td {
+    padding: 12px 12px;
+    border-bottom: 1px solid #F1F5F9;
+    color: #0F172A;
+    vertical-align: middle;
+  }
+  .gs-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .gs-table tbody tr:hover td {
+    background: #FAFBFF;
+  }
+  .gs-table tbody tr.unsaved td {
+    background: #FFFBEB;
+  }
+  .gs-table tbody tr.bad td {
+    background: #FEF2F2;
+  }
+
+  /* Ô nhập điểm */
+  .gi {
+    width: 74px;
+    height: 34px;
+    text-align: center;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 0 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0F172A;
+    background: #FFFFFF;
+    transition: all 0.15s ease;
+  }
+  .gi::placeholder {
+    color: #94A3B8;
+    font-weight: 400;
+    font-size: 12.5px;
+  }
+  .gi:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+  .gi.dirty {
+    border-color: #F59E0B;
+    background: #FFFDF5;
+  }
+  .gi[readonly] {
+    background: #F8FAFC;
+    color: #64748B;
+    cursor: default;
+  }
+
+  /* Pill điểm chữ & trạng thái */
+  .gs-letter-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #DCFCE7;
+    color: #15803D;
+  }
+  .gs-letter-pill.b-c {
+    background: #EEF2FF;
+    color: #4F46E5;
+  }
+  .gs-letter-pill.d {
+    background: #FEF3C7;
+    color: #B45309;
+  }
+  .gs-letter-pill.f {
+    background: #FEE2E2;
+    color: #B91C1C;
+  }
+  .gs-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .gs-status-pill.saved {
+    background: #DCFCE7;
+    color: #15803D;
+  }
+  .gs-status-pill.unsaved {
+    background: #FEF3C7;
+    color: #B45309;
+  }
+  .gs-status-pill.none {
+    background: #F1F5F9;
+    color: #64748B;
+  }
+  .gs-err-text {
+    color: #DC2626;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .gs-formula-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #64748B;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Thanh lưu cập nhật phía dưới */
+  .gs-save-bar {
+    position: sticky;
+    bottom: 12px;
+    z-index: 20;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  }
+  .gs-save-bar.has-changes {
+    border-color: #FCD34D;
+    background: #FFFDF7;
+  }
+  .gs-note-banner {
+    background: #EEF2FF;
+    border: 1px solid #C7D2FE;
+    color: #3730A3;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 13.5px;
+  }
+  .gs-alert-banner {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #B91C1C;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 13.5px;
+  }
+
+  @media (max-width: 960px) {
+    .gs-filter-3 { grid-template-columns: 1fr; }
+    .gs-stats-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .gs-stats-4 { grid-template-columns: 1fr; }
+  }
+</style>
+
+<!-- Tiêu đề trang & nút thao tác nhanh -->
+<div class="gs-header">
+  <div>
+    <h1>Nhập điểm &amp; bảng điểm</h1>
+    <p>Nhập điểm thành phần, tự động quy đổi điểm tổng kết và cập nhật kết quả học tập của sinh viên.</p>
+  </div>
+
+  {% if can_edit %}
+  <div class="gs-header-actions">
+    <button type="button" class="gs-btn-outline" id="cancel-top" disabled>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+      </svg>
+      <span>Hủy thay đổi</span>
+    </button>
+    <button type="submit" form="sheet" class="gs-btn-primary" id="save-top" disabled>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+      </svg>
+      <span>Lưu bảng điểm</span>
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+{% if not can_edit %}
+<div class="gs-note-banner">
+  <strong>Chế độ quản lý: chỉ tra cứu bảng điểm.</strong><br>
+  Quản trị viên có thể theo dõi bảng điểm các lớp học phần. Việc nhập và chỉnh sửa điểm do giảng viên phụ trách thực hiện.
+</div>
+{% endif %}
+
+{% if errors %}
+<div class="gs-alert-banner">
+  <strong>Chưa lưu được bảng điểm.</strong> Có {{ errors|length }} dòng dữ liệu chưa hợp lệ (điểm phải từ 0 đến 10). Vui lòng kiểm tra thông báo màu đỏ ở cột Trạng thái.
+</div>
+{% endif %}
+
+<!-- Card 1: Chọn bảng điểm -->
+<form method="get" id="pick" class="gs-card">
+  <div class="gs-card-head">
+    <h2 class="gs-card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      </svg>
+      <span>Chọn lớp học phần để nhập điểm</span>
+    </h2>
+    <span class="gs-badge-indigo">Thang điểm 10 • Tự động quy đổi</span>
+  </div>
+
+  <div class="gs-filter-3">
+    <div class="gs-field">
+      <label for="class_id">Lớp sinh hoạt</label>
+      <select id="class_id" name="class_id" class="gs-select">
+        {% for c in classes %}
+        <option value="{{ c }}" {{ 'selected' if c == class_id }}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="gs-field">
+      <label for="semester">Học kỳ / Năm học</label>
+      <select id="semester" name="semester" class="gs-select">
+        {% for s in semesters %}
+        <option value="{{ s }}" {{ 'selected' if s == semester }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="gs-field">
+      <label for="subject_id">Học phần</label>
+      <select id="subject_id" name="subject_id" class="gs-select">
+        {% for c in courses %}
+        <option value="{{ c.subject_id }}" {{ 'selected' if c.subject_id == course.subject_id }}>
+          {{ c.subject_id }} · {{ c.subject_name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="gs-meta-strip">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+    <span>{{ course.credits }} tín chỉ • Công thức: Tổng kết = 10% Chuyên cần + 30% Giữa kỳ + 60% Cuối kỳ</span>
+  </div>
+</form>
+
+<!-- 4 Thẻ thống kê -->
+<div class="gs-stats-4">
+  <div class="gs-stat-card">
+    <div class="gs-stat-info">
+      <span class="gs-stat-label">Sinh viên trong lớp</span>
+      <span class="gs-stat-sub">Lớp {{ class_id or '—' }}</span>
+    </div>
+    <span class="gs-stat-num">{{ stats.total }}</span>
+  </div>
+
+  <div class="gs-stat-card">
+    <div class="gs-stat-info">
+      <span class="gs-stat-label">Đã lưu điểm</span>
+      <span class="gs-stat-sub">Đã ghi nhận trên hệ thống</span>
+    </div>
+    <span class="gs-stat-num ok" id="n-saved">{{ stats.saved }}</span>
+  </div>
+
+  <div class="gs-stat-card">
+    <div class="gs-stat-info">
+      <span class="gs-stat-label">Thay đổi chưa lưu</span>
+      <span class="gs-stat-sub">Cần bấm Lưu bảng điểm</span>
+    </div>
+    <span class="gs-stat-num wn" id="n-unsaved">0</span>
+  </div>
+
+  <div class="gs-stat-card">
+    <div class="gs-stat-info">
+      <span class="gs-stat-label">Chưa nhập điểm</span>
+      <span class="gs-stat-sub">Cần bổ sung điểm</span>
+    </div>
+    <span class="gs-stat-num mu" id="n-none">{{ stats.none }}</span>
+  </div>
+</div>
+
+<!-- Form bảng điểm -->
+<form method="post" id="sheet">
+  <input type="hidden" name="class_id" value="{{ class_id }}">
+  <input type="hidden" name="semester" value="{{ semester }}">
+  <input type="hidden" name="subject_id" value="{{ course.subject_id }}">
+
+  <div class="gs-card">
+    <div class="gs-card-head">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <h2 class="gs-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span>Bảng điểm sinh viên</span>
+        </h2>
+        {% if class_id %}<span class="gs-badge-indigo">{{ class_id }}</span>{% endif %}
+      </div>
+
+      <div class="gs-table-tools">
+        <div class="gs-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input id="q" class="gs-search-input" placeholder="Tìm theo mã SV hoặc họ tên..." aria-label="Tìm sinh viên" form="none">
+        </div>
+        <select id="f" class="gs-select" style="width:auto; min-width:170px;" form="none" aria-label="Lọc trạng thái">
+          <option value="">Tất cả trạng thái</option>
+          <option value="saved">Đã lưu</option>
+          <option value="unsaved">Chưa lưu</option>
+          <option value="none">Chưa nhập</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="gs-table-wrap">
+      <table class="gs-table">
+        <thead>
+          <tr>
+            <th style="width: 56px;">STT</th>
+            <th>Mã sinh viên</th>
+            <th>Họ và tên</th>
+            <th class="center">Chuyên cần (10%)</th>
+            <th class="center">Giữa kỳ (30%)</th>
+            <th class="center">Cuối kỳ (60%)</th>
+            <th class="center">Tổng kết</th>
+            <th class="center">Hệ 4</th>
+            <th class="center">Điểm chữ</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr data-sid="{{ r.id }}" data-orig="{{ r.status }}" data-status="{{ r.status }}" class="{{ 'bad' if r.error }}">
+            <td style="color:#94A3B8; font-weight:600;">{{ "%02d"|format(loop.index) }}</td>
+            <td><strong style="color:#4F46E5;">{{ r.id }}</strong></td>
+            <td><strong>{{ r.name }}</strong></td>
+            {% for key in ("att", "mid", "fin") %}
+            <td class="center">
+              <input class="gi"
+                     name="{{ key }}_{{ r.id }}"
+                     value="{{ r.vals[loop.index0] }}"
+                     data-orig="{{ r.orig[loop.index0] }}"
+                     inputmode="decimal"
+                     placeholder="Nhập"
+                     aria-label="{{ key }} {{ r.name }}"
+                     {{ 'readonly' if not can_edit }}>
+            </td>
+            {% endfor %}
+            <td class="center tot" style="font-weight:700;">{{ '%.2f'|format(r.calc[0]) if r.calc else '—' }}</td>
+            <td class="center g4v">{{ '%.1f'|format(r.calc[1]) if r.calc else '—' }}</td>
+            <td class="center lt">
+              {% if r.calc %}
+                {% set ltr = r.calc[2] %}
+                <span class="gs-letter-pill {% if ltr in ['B', 'C'] %}b-c{% elif ltr == 'D' %}d{% elif ltr == 'F' %}f{% endif %}">{{ ltr }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="st">
+              {% if r.error %}
+                <span class="gs-err-text">{{ r.error }}</span>
+              {% elif r.status == 'saved' %}
+                <span class="gs-status-pill saved">● Đã lưu</span>
+              {% else %}
+                <span class="gs-status-pill none">○ Chưa nhập</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10" style="text-align:center; color:#94A3B8; padding:24px;">
+              Chưa có sinh viên nào trong lớp học phần được chọn.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gs-formula-note">
+      <span>Quy đổi: A (8.5–10) = 4.0 · B (7.0–8.4) = 3.0 · C (5.5–6.9) = 2.0 · D (4.0–5.4) = 1.0 · F (dưới 4.0) = 0</span>
+      <span>Tổng kết = 10% chuyên cần + 30% giữa kỳ + 60% cuối kỳ</span>
+    </div>
+  </div>
+
+  {% if can_edit %}
+  <div class="gs-save-bar" id="save-bar">
+    <span id="dmsg" style="font-size:13px; color:#64748B;">Chưa có thay đổi nào.</span>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button type="button" class="gs-btn-outline" id="cancel" disabled>Hủy thay đổi</button>
+      <button type="submit" class="gs-btn-primary" id="save" disabled>Lưu bảng điểm</button>
+    </div>
+  </div>
+  {% endif %}
+</form>
+
+<script>
+(function(){
+  var G4 = {A:4, B:3, C:2, D:1, F:0};
+  function letter(x){ return x >= 8.5 ? "A" : x >= 7 ? "B" : x >= 5.5 ? "C" : x >= 4 ? "D" : "F"; }
+  function pillClass(L){
+    if (L === "B" || L === "C") return "gs-letter-pill b-c";
+    if (L === "D") return "gs-letter-pill d";
+    if (L === "F") return "gs-letter-pill f";
+    return "gs-letter-pill";
+  }
+
+  var rows = [].slice.call(document.querySelectorAll("tr[data-sid]"));
+
+  function refresh(tr){
+    var ins = [].slice.call(tr.querySelectorAll(".gi")),
+        v = ins.map(function(i){ return i.value.trim().replace(",", "."); }),
+        dirty = ins.some(function(i){ return i.value.trim() !== i.dataset.orig; }),
+        ok = v.every(function(x){ return x !== "" && !isNaN(Number(x)) && Number(x) >= 0 && Number(x) <= 10; }),
+        tot = tr.querySelector(".tot"),
+        g4 = tr.querySelector(".g4v"),
+        lt = tr.querySelector(".lt"),
+        st = tr.querySelector(".st");
+
+    if (ok) {
+      var t = Number(v[0]) * 0.1 + Number(v[1]) * 0.3 + Number(v[2]) * 0.6,
+          L = letter(t);
+      tot.textContent = t.toFixed(2);
+      g4.textContent = G4[L].toFixed(1);
+      lt.innerHTML = '<span class="' + pillClass(L) + '">' + L + '</span>';
+    } else {
+      tot.textContent = g4.textContent = lt.textContent = "—";
+    }
+
+    tr.dataset.status = dirty ? "unsaved" : tr.dataset.orig;
+    tr.classList.toggle("unsaved", dirty);
+    tr.classList.remove("bad");
+    ins.forEach(function(i){ i.classList.toggle("dirty", i.value.trim() !== i.dataset.orig); });
+
+    st.innerHTML = dirty
+      ? '<span class="gs-status-pill unsaved">● Chưa lưu</span>'
+      : tr.dataset.orig === "saved"
+        ? '<span class="gs-status-pill saved">● Đã lưu</span>'
+        : '<span class="gs-status-pill none">○ Chưa nhập</span>';
+  }
+
+  function count(){
+    var c = {saved:0, unsaved:0, none:0};
+    rows.forEach(function(r){ c[r.dataset.status]++; });
+    ["saved", "unsaved", "none"].forEach(function(k){
+      var el = document.getElementById("n-" + k);
+      if (el) el.textContent = c[k];
+    });
+
+    var s = document.getElementById("save"),
+        sTop = document.getElementById("save-top"),
+        cl = document.getElementById("cancel"),
+        clTop = document.getElementById("cancel-top"),
+        bar = document.getElementById("save-bar"),
+        m = document.getElementById("dmsg");
+
+    if (s) {
+      var disabled = !c.unsaved;
+      s.disabled = cl.disabled = disabled;
+      if (sTop) sTop.disabled = disabled;
+      if (clTop) clTop.disabled = disabled;
+      if (bar) bar.classList.toggle("has-changes", !disabled);
+
+      var label = c.unsaved ? "Lưu bảng điểm (" + c.unsaved + ")" : "Lưu bảng điểm";
+      s.textContent = label;
+      if (sTop) sTop.querySelector("span").textContent = label;
+
+      m.style.color = c.unsaved ? "#B45309" : "#64748B";
+      m.style.fontWeight = c.unsaved ? "600" : "400";
+      m.textContent = c.unsaved
+        ? "Có " + c.unsaved + " dòng thay đổi chưa được lưu. Điểm chỉ được ghi vào hồ sơ sau khi bạn lưu."
+        : "Chưa có thay đổi nào.";
+    }
+    return c.unsaved;
+  }
+
+  function filter(){
+    var q = document.getElementById("q").value.toLowerCase(),
+        f = document.getElementById("f").value;
+    rows.forEach(function(r){
+      var matchText = r.textContent.toLowerCase().indexOf(q) > -1;
+      var matchStatus = !f || r.dataset.status === f;
+      r.style.display = (matchText && matchStatus) ? "" : "none";
+    });
+  }
+
+  rows.forEach(function(r){
+    r.addEventListener("input", function(){ refresh(r); count(); filter(); });
+  });
+  document.getElementById("q").addEventListener("input", filter);
+  document.getElementById("f").addEventListener("change", filter);
+
+  function resetAll(){
+    rows.forEach(function(r){
+      r.querySelectorAll(".gi").forEach(function(i){ i.value = i.dataset.orig; });
+      refresh(r);
+    });
+    count();
+    filter();
+  }
+
+  var cancel = document.getElementById("cancel"),
+      cancelTop = document.getElementById("cancel-top");
+  if (cancel) cancel.onclick = resetAll;
+  if (cancelTop) cancelTop.onclick = resetAll;
+
+  var pick = document.getElementById("pick");
+  [].forEach.call(pick.querySelectorAll("select"), function(s){
+    var prev = s.value;
+    s.addEventListener("change", function(){
+      if (count() && !confirm("Còn thay đổi chưa lưu. Đổi bảng điểm sẽ mất các thay đổi này. Tiếp tục?")) {
+        s.value = prev;
+        return;
+      }
+      pick.submit();
+    });
+  });
+
+  window.addEventListener("beforeunload", function(e){
+    if (document.activeElement && document.activeElement.type === "submit") return;
+    if (count()) { e.preventDefault(); e.returnValue = ""; }
+  });
+  document.getElementById("sheet").addEventListener("submit", function(){
+    window.onbeforeunload = null;
+  });
+
+  rows.forEach(function(r){ if (!r.classList.contains("bad")) refresh(r); });
+  count();
+})();
+</script>
+{% endblock %}

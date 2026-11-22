@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập hệ thống — Quản lý đào tạo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <style>
+        body {
+            background-color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+        }
+        .role-card {
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px 10px;
+            background: #FFFFFF;
+            color: #475569;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .role-card:hover {
+            border-color: #CBD5E1;
+            background: #F8FAFC;
+        }
+        .role-card.active {
+            background: #EEF2FF;
+            border-color: #6366F1;
+            color: #4F46E5;
+            font-weight: 600;
+        }
+        .role-card .check-dot {
+            display: none;
+        }
+        .role-card.active .check-dot {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <div class="fw-bold text-uppercase mb-1" style="color: #4F46E5; font-size: 0.72rem; letter-spacing: 0.06em;">
+        ĐĂNG NHẬP HỆ THỐNG
+    </div>
+    <h3 class="fw-bold mb-1" id="loginTitle" style="letter-spacing: -0.02em;">Đăng nhập</h3>
+    <p class="text-muted mb-4" id="loginSubtitle" style="font-size: 0.85rem;">Chọn vai trò và đăng nhập để tiếp tục.</p>
+
+    {% if error %}
+    <div class="alert alert-danger py-2 px-3 rounded-3 mb-3" style="font-size: 0.83rem;">
+        <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size: 0.8rem;">Bạn đăng nhập với vai trò</label>
+            <div class="row g-2">
+                <div class="col-4">
+                    <div class="role-card active" data-role="student" data-title="Đăng nhập" data-sub="Chọn vai trò và đăng nhập để tiếp tục." data-label="Mã sinh viên / Tên đăng nhập" data-placeholder="SV2024001">
+                        <i class="bi bi-mortarboard"></i>
+                        <span>Sinh viên</span>
+                        <i class="bi bi-check-circle check-dot"></i>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="role-card" data-role="teacher" data-title="Đăng nhập giảng viên" data-sub="Chào mừng bạn đến với cổng giảng viên." data-label="Mã giảng viên / Tên đăng nhập" data-placeholder="GV2026008">
+                        <i class="bi bi-easel"></i>
+                        <span>Giảng viên</span>
+                        <i class="bi bi-check-circle check-dot"></i>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="role-card" data-role="admin" data-title="Đăng nhập" data-sub="Chọn vai trò và đăng nhập để tiếp tục." data-label="Tên đăng nhập quản trị viên" data-placeholder="Nhập tên đăng nhập">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Quản trị viên</span>
+                        <i class="bi bi-check-circle check-dot"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold" id="userLabel" style="font-size: 0.8rem;">Mã sinh viên / Tên đăng nhập</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                <input type="text" name="username" id="usernameInput" class="form-control border-start-0 ps-0" placeholder="SV2024001" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size: 0.8rem;">Mật khẩu</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                <input type="password" name="password" id="passwordInput" class="form-control border-start-0 border-end-0 ps-0" placeholder="••••••••••••" required>
+                <button type="button" class="input-group-text bg-white border-start-0 text-muted" id="togglePwd">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4" style="font-size: 0.8rem;">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+                <label class="form-check-label text-muted" for="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+            <a href="#" class="text-decoration-none fw-medium" style="color: #4F46E5;" onclick="alert('Vui lòng liên hệ Phòng Đào tạo để cấp lại mật khẩu.'); return false;">Quên mật khẩu?</a>
+        </div>
+
+        <button type="submit" class="btn btn-indigo w-100 py-2 mb-3">
+            Đăng nhập <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+
+        <div class="text-center text-muted" style="font-size: 0.76rem;">
+            <i class="bi bi-lock me-1"></i> Thông tin của bạn luôn được bảo mật.
+        </div>
+    </form>
+</div>
+
+<script>
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('loginTitle').textContent = this.dataset.title;
+            document.getElementById('loginSubtitle').textContent = this.dataset.sub;
+            document.getElementById('userLabel').textContent = this.dataset.label;
+            document.getElementById('usernameInput').placeholder = this.dataset.placeholder;
+        });
+    });
+
+    document.getElementById('togglePwd').addEventListener('click', function () {
+        const pwd = document.getElementById('passwordInput');
+        const icon = this.querySelector('i');
+        if (pwd.type === 'password') {
+            pwd.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            pwd.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    });
+</script>
+</body>
+</html>

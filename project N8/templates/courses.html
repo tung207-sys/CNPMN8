@@ -1,0 +1,233 @@
+{% extends 'academic_base.html' %}
+{% block breadcrumb %}Quản lý môn học{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="letter-spacing: -0.02em;">Quản lý môn học</h4>
+        <p class="text-muted mb-0" style="font-size: 0.85rem;">Quản lý danh mục môn học, số tín chỉ và phân bổ tiết học.</p>
+    </div>
+    <button type="button" class="btn btn-indigo d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalThemMon">
+        <i class="bi bi-plus-lg"></i> <span>Thêm môn học</span>
+    </button>
+</div>
+
+<!-- Bảng Danh Sách Môn Học -->
+<div class="card-panel mb-4">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold" style="font-size: 0.95rem;">Danh sách môn học</span>
+            <span class="badge-soft-indigo">{{ ds_mon|length }} học phần | {{ tong_tin_chi }} tín chỉ</span>
+        </div>
+    </div>
+
+    <form method="GET" class="p-3 border-bottom bg-white">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" name="q" value="{{ q }}" class="form-control border-start-0 ps-0" placeholder="Tìm theo mã môn hoặc tên môn học (hỗ trợ chữ thường / không dấu)..." style="font-size: 0.85rem;">
+            {% if q %}
+            <a href="{{ url_for('academic.quan_ly_mon_hoc') }}" class="btn btn-outline-clean">Xóa lọc</a>
+            {% endif %}
+            <button type="submit" class="btn btn-outline-clean">Tìm kiếm</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Mã môn</th>
+                    <th>Tên môn học</th>
+                    <th>Số tín chỉ</th>
+                    <th>Khoa phụ trách</th>
+                    <th>Số lớp đang học</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mon in ds_mon %}
+                <tr class="{{ mon.row_class }}">
+                    <td>
+                        <a href="{{ url_for('academic.quan_ly_mon_hoc', selected=mon.ma_mon) }}" class="code-link">{{ mon.ma_mon }}</a>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ mon.ten_mon }}</div>
+                        <div class="text-muted" style="font-size: 0.76rem;">{{ mon.so_tiet }}</div>
+                    </td>
+                    <td><span class="badge-soft-indigo">{{ mon.so_tin_chi }} tín chỉ</span></td>
+                    <td class="fw-medium">{{ mon.khoa }}</td>
+                    <td class="text-muted">{{ mon.phan_congs|length }} lớp</td>
+                    <td class="text-end">
+                        <a href="{{ url_for('academic.quan_ly_mon_hoc', selected=mon.ma_mon) }}" class="text-decoration-none fw-medium me-2" style="color: #4F46E5; font-size: 0.8rem;">
+                            <i class="bi bi-eye"></i> Chi tiết
+                        </a>
+                        <button type="button" class="btn btn-link action-icon btn-edit-mon" title="Sửa môn học"
+                                data-bs-toggle="modal" data-bs-target="#modalSuaMon"
+                                data-url="{{ url_for('academic.sua_mon_hoc', id=mon.id) }}"
+                                data-ma="{{ mon.ma_mon }}"
+                                data-ten="{{ mon.ten_mon }}"
+                                data-tc="{{ mon.so_tin_chi }}"
+                                data-sotiet="{{ mon.so_tiet }}"
+                                data-khoa="{{ mon.khoa }}"
+                                data-mota="{{ mon.mo_ta }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="{{ url_for('academic.xoa_mon_hoc', id=mon.id) }}" class="action-icon delete" title="Xóa môn học" onclick="return confirm('Xác nhận xóa môn {{ mon.ten_mon }}?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-3 d-flex justify-content-between align-items-center" style="font-size: 0.8rem;">
+        <span class="text-muted">Hiển thị {{ ds_mon|length }} môn học</span>
+        {% if selected_mon %}
+        <span class="fw-semibold" style="color: #4F46E5;">Đang chọn: {{ selected_mon.ma_mon }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Khung Chi Tiết Học Phần Đang Chọn -->
+{% if selected_mon %}
+<div class="card-panel p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <span class="badge-soft-indigo mb-2 d-inline-block">{{ selected_mon.ma_mon }}</span>
+            <h5 class="fw-bold mb-1">{{ selected_mon.ten_mon }}</h5>
+            <div class="text-muted" style="font-size: 0.82rem;">
+                Khoa: <strong>{{ selected_mon.khoa }}</strong> | Số tín chỉ: <strong>{{ selected_mon.so_tin_chi }} TC</strong> | Phân bổ: <strong>{{ selected_mon.so_tiet }}</strong>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-clean btn-edit-mon"
+                    data-bs-toggle="modal" data-bs-target="#modalSuaMon"
+                    data-url="{{ url_for('academic.sua_mon_hoc', id=selected_mon.id) }}"
+                    data-ma="{{ selected_mon.ma_mon }}"
+                    data-ten="{{ selected_mon.ten_mon }}"
+                    data-tc="{{ selected_mon.so_tin_chi }}"
+                    data-sotiet="{{ selected_mon.so_tiet }}"
+                    data-khoa="{{ selected_mon.khoa }}"
+                    data-mota="{{ selected_mon.mo_ta }}">
+                <i class="bi bi-pencil me-1"></i> Sửa môn học
+            </button>
+            <span class="badge-status-active">Đang mở</span>
+        </div>
+    </div>
+    <div class="p-3 rounded-3" style="background: #F8FAFC; border: 1px solid #F1F5F9;">
+        <div class="fw-semibold mb-1" style="font-size: 0.82rem;">Mô tả nội dung học phần</div>
+        <div class="text-muted" style="font-size: 0.82rem;">{{ selected_mon.mo_ta if selected_mon.mo_ta else 'Chưa có mô tả chi tiết cho học phần này.' }}</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Thêm Môn Học -->
+<div class="modal fade" id="modalThemMon" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Thêm môn học mới</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã môn học</label>
+                        <input type="text" name="ma_mon" class="form-control" placeholder="VD: INT2605" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Tên môn học</label>
+                        <input type="text" name="ten_mon" class="form-control" placeholder="VD: Trí tuệ nhân tạo" required>
+                    </div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Số tín chỉ</label>
+                        <input type="number" name="so_tin_chi" class="form-control" placeholder="VD: 3" min="1" max="10" required>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-medium">Phân bổ số tiết</label>
+                        <input type="text" name="so_tiet" class="form-control" placeholder="VD: 30 LT | 30 TH" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Khoa phụ trách</label>
+                    <input type="text" name="khoa" class="form-control" placeholder="VD: Công nghệ thông tin" required>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Mô tả học phần</label>
+                    <textarea name="mo_ta" class="form-control" rows="2" placeholder="Tự nhập mô tả nội dung môn học..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Lưu môn học</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Môn Học -->
+<div class="modal fade" id="modalSuaMon" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" id="formSuaMon" class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">Chỉnh sửa thông tin môn học</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-medium">Mã môn học</label>
+                        <input type="text" name="ma_mon" id="edit_mon_ma" class="form-control" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-medium">Tên môn học</label>
+                        <input type="text" name="ten_mon" id="edit_mon_ten" class="form-control" required>
+                    </div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Số tín chỉ</label>
+                        <input type="number" name="so_tin_chi" id="edit_mon_tc" class="form-control" min="1" max="10" required>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-medium">Phân bổ số tiết</label>
+                        <input type="text" name="so_tiet" id="edit_mon_sotiet" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Khoa phụ trách</label>
+                    <input type="text" name="khoa" id="edit_mon_khoa" class="form-control" required>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-medium">Mô tả học phần</label>
+                    <textarea name="mo_ta" id="edit_mon_mota" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-clean" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-indigo">Cập nhật môn học</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.btn-edit-mon').forEach(btn => {
+    btn.addEventListener('click', function () {
+    document.getElementById('formSuaMon').action = this.dataset.url;
+    document.getElementById('edit_mon_ma').value = this.dataset.ma;
+    document.getElementById('edit_mon_ten').value = this.dataset.ten;
+    document.getElementById('edit_mon_tc').value = this.dataset.tc;
+    document.getElementById('edit_mon_sotiet').value = this.dataset.sotiet;
+    document.getElementById('edit_mon_khoa').value = this.dataset.khoa;
+    document.getElementById('edit_mon_mota').value = this.dataset.mota;
+    });
+    });
+</script>
+{% endblock %}
