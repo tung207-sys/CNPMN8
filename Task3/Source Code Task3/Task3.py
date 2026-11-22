@@ -106,13 +106,13 @@ class PhanCongGiangDay:
         return next((g for g in GIANG_VIENS if g.id == self.giang_vien_id), None)
 
 GIANG_VIENS = [
-    GiangVien(1, 'GV202401', 'Lê Thu Hương', 'huong.lt@example.edu.vn',
+    GiangVien(1, 'GV202401', 'Lê Thu Hương', 'huong.lt@gmail.com',
               'Công nghệ thông tin', 'Thạc sĩ', 'Cơ sở dữ liệu & Hệ thống thông tin'),
-    GiangVien(2, 'GV202402', 'Nguyễn Văn An', 'an.nv@example.edu.vn',
+    GiangVien(2, 'GV202402', 'Nguyễn Văn An', 'an.nv@gmail.com',
               'Công nghệ thông tin', 'Tiến sĩ', 'Công nghệ phần mềm'),
-    GiangVien(3, 'GV202403', 'Trần Minh Tâm', 'tam.tm@example.edu.vn',
+    GiangVien(3, 'GV202403', 'Trần Minh Tâm', 'tam.tm@gmail.com',
               'Quản trị kinh doanh', 'Tiến sĩ', 'Quản trị chiến lược'),
-    GiangVien(4, 'GV202404', 'Phạm Lan Anh', 'anh.pl@example.edu.vn',
+    GiangVien(4, 'GV202404', 'Phạm Lan Anh', 'anh.pl@gmail.com',
               'Ngôn ngữ Anh', 'Thạc sĩ', 'Tiếng Anh thương mại'),
 ]
 
