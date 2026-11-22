@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Sinh viên</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body { display: flex; min-height: 100vh; background: #F8FAFC; color: #0F172A; }
+
+        /* --- SIDEBAR BÊN TRÁI --- */
+        .sidebar {
+            width: 250px;
+            background: #FFFFFF;
+            border-right: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 14px;
+            flex-shrink: 0;
+        }
+        .role-badge {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .menu-heading {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94A3B8;
+            padding: 0 10px;
+            margin-bottom: 8px;
+        }
+        .menu-item {
+            display: block;
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #64748B;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+        .menu-item.active {
+            background: #F3F2FF;
+            color: #5243E8;
+            font-weight: 600;
+        }
+
+        /* Đáy Sidebar */
+        .sidebar-bottom { border-top: 1px solid #E2E8F0; padding-top: 12px; }
+        .bottom-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+        .bottom-btn:hover { background: #F1F5F9; }
+        .logout-btn { color: #DC2626; font-weight: 600; }
+        .logout-btn:hover { background: #FEF2F2; }
+        .version-text { font-size: 11px; color: #94A3B8; padding: 8px 12px 0; }
+
+        /* --- KHUNG PHẢI --- */
+        .right-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        /* Topbar */
+        .topbar {
+            height: 64px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748B; }
+        .breadcrumb strong { color: #0F172A; font-weight: 600; }
+
+        .topbar-right { display: flex; align-items: center; gap: 18px; }
+        .academic-year { font-size: 13px; color: #475569; display: flex; align-items: center; gap: 6px; }
+        .bell-btn { background: none; border: none; font-size: 17px; color: #64748B; cursor: pointer; padding: 6px; border-radius: 8px; }
+        .bell-btn:hover { background: #F1F5F9; }
+
+        .user-profile-wrap { position: relative; }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 10px;
+        }
+        .user-profile:hover { background: #F8FAFC; }
+        .avatar-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #EEF2FF;
+            color: #5243E8;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-meta { line-height: 1.3; text-align: left; }
+        .user-meta .u-name { font-size: 13px; font-weight: 700; color: #0F172A; }
+        .user-meta .u-dept { font-size: 11px; color: #64748B; }
+        .chevron { font-size: 12px; color: #64748B; margin-left: 2px; }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 50px;
+            width: 210px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            padding: 6px;
+            z-index: 100;
+        }
+        .profile-dropdown.show { display: block; }
+        .dropdown-item {
+            display: block;
+            padding: 9px 12px;
+            font-size: 13px;
+            color: #334155;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        .dropdown-item:hover { background: #F1F5F9; }
+        .dropdown-item.danger { color: #DC2626; font-weight: 600; }
+        .dropdown-item.danger:hover { background: #FEF2F2; }
+
+        /* --- NỘI DUNG CHÍNH --- */
+        .main-content { flex: 1; padding: 28px 32px; }
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+        .page-subtitle { font-size: 14px; color: #64748B; margin-bottom: 22px; }
+
+        /* Admin Dashboard Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px; }
+        .card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .kpi-header { display: flex; justify-content: space-between; align-items: center; color: #64748B; font-size: 13px; font-weight: 600; }
+        .kpi-icon {
+            width: 34px; height: 34px; border-radius: 8px; background: #F3F2FF; color: #5243E8;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #0F172A; margin: 10px 0 4px; }
+        .kpi-note { font-size: 12px; color: #64748B; }
+
+        /* Biểu đồ ngang & Tình trạng sinh viên */
+        .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 20px; }
+        .card-title { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 16px; }
+
+        .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .bar-label { width: 75px; font-size: 13px; font-weight: 600; color: #334155; }
+        .bar-track { flex: 1; height: 22px; background: #F1F5F9; border-radius: 6px; overflow: hidden; }
+        .bar-fill { height: 100%; background: #5243E8; border-radius: 6px; }
+        .bar-num { width: 32px; text-align: right; font-size: 13px; font-weight: 700; color: #0F172A; }
+        .chart-legend { font-size: 12px; color: #64748B; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 10px; height: 10px; background: #5243E8; border-radius: 2px; display: inline-block; }
+
+        .status-item { margin-bottom: 16px; }
+        .status-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .status-track { height: 8px; background: #F1F5F9; border-radius: 99px; overflow: hidden; }
+        .status-fill-green { height: 100%; background: #10B981; border-radius: 99px; }
+        .status-fill-amber { height: 100%; background: #F59E0B; border-radius: 99px; }
+        .scope-box { border-top: 1px solid #E2E8F0; padding-top: 12px; margin-top: 14px; }
+        .scope-title { font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 4px; }
+        .scope-text { font-size: 13px; color: #334155; font-weight: 600; }
+
+        /* Bảng thống kê chi tiết theo lớp */
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .table-link { font-size: 13px; font-weight: 600; color: #5243E8; text-decoration: none; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748B;
+            padding: 10px 12px;
+            border-bottom: 1px solid #E2E8F0;
+            background: #F8FAFC;
+        }
+        td { padding: 12px; border-bottom: 1px solid #F1F5F9; color: #334155; }
+        .class-code { color: #5243E8; font-weight: 700; }
+        .badge-green { background: #ECFDF5; color: #059669; padding: 3px 8px; border-radius: 99px; font-weight: 600; font-size: 12px; }
+        .badge-amber { background: #FFFBEB; color: #D97706; padding: 3px 8px; border-radius: 99px; font-weight: 600; font-size: 12px; }
+
+        /* Thẻ thông tin cho Sinh viên & Giảng viên */
+        .info-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            line-height: 1.9;
+            font-size: 15px;
+        }
+        .tag {
+            display: inline-block;
+            background: #F3F2FF;
+            color: #5243E8;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    {% set parts = user.full_name.split() %}
+    {% if user.role == 'admin' %}
+        {% set initials = 'QT' %}
+    {% elif parts|length >= 2 %}
+        {% set initials = (parts[-2][0] ~ parts[-1][0]).upper() %}
+    {% else %}
+        {% set initials = user.full_name[:2].upper() %}
+    {% endif %}
+
+    <!-- SIDEBAR TRÁI -->
+    <aside class="sidebar">
+        <div>
+            {% if user.role == 'student' %}
+                <div class="role-badge">🎓 &nbsp;Cổng sinh viên</div>
+                <div class="menu-heading">KHÔNG GIAN LÀM VIỆC</div>
+                <a class="menu-item active" href="#">👤 &nbsp;Thông tin cá nhân</a>
+                <a class="menu-item" href="#">📚 &nbsp;Lớp đang học</a>
+                <a class="menu-item" href="#">📈 &nbsp;Kết quả học tập</a>
+                <a class="menu-item" href="#">📝 &nbsp;Đăng ký môn học</a>
+
+            {% elif user.role == 'teacher' %}
+                <div class="role-badge">🎓 &nbsp;Cổng giảng viên</div>
+                <div class="menu-heading">KHÔNG GIAN LÀM VIỆC</div>
+                <a class="menu-item active" href="#">👤 &nbsp;Thông tin giảng viên</a>
+                <a class="menu-item" href="#">👥 &nbsp;Danh sách sinh viên</a>
+                <a class="menu-item" href="#">📝 &nbsp;Điểm &amp; bảng điểm</a>
+
+            {% else %}
+                <div class="role-badge">🛡️ &nbsp;Cổng quản trị</div>
+                <div class="menu-heading">KHÔNG GIAN LÀM VIỆC</div>
+                <a class="menu-item active" href="/portal">📊 &nbsp;Tổng quan</a>
+                <a class="menu-item" href="#">👥 &nbsp;Quản lý sinh viên</a>
+                <a class="menu-item" href="#">🏫 &nbsp;Quản lý lớp</a>
+                <a class="menu-item" href="#">📝 &nbsp;Quản lý điểm</a>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-bottom">
+            <a class="bottom-btn" href="/change-password">🔑 &nbsp;Thay đổi mật khẩu</a>
+            <a class="bottom-btn logout-btn" href="/logout" onclick="return confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')">
+                🚪 &nbsp;Đăng xuất
+            </a>
+            <div class="version-text">© 2026 · Phiên bản 2.0</div>
+        </div>
+    </aside>
+
+    <!-- PHẦN BÊN PHẢI -->
+    <div class="right-wrapper">
+        <header class="topbar">
+            <div class="breadcrumb">
+                <span>🏠</span>
+                {% if user.role == 'student' %}
+                    <span>Cổng sinh viên</span> <span>›</span> <strong>Thông tin cá nhân</strong>
+                {% elif user.role == 'teacher' %}
+                    <span>Cổng giảng viên</span> <span>›</span> <strong>Thông tin &amp; phân công</strong>
+                {% else %}
+                    <span>Quản trị</span> <span>›</span> <strong>Tổng quan</strong>
+                {% endif %}
+            </div>
+
+            <div class="topbar-right">
+                <div class="academic-year">📅 Năm học 2026 – 2027</div>
+                <button class="bell-btn" title="Thông báo" onclick="alert('Chưa có thông báo mới.')">🔔</button>
+
+                <div class="user-profile-wrap">
+                    <div class="user-profile" onclick="toggleProfileMenu()">
+                        <div class="avatar-circle">{{ initials }}</div>
+                        <div class="user-meta">
+                            <div class="u-name">{{ user.full_name }}</div>
+                            <div class="u-dept">
+                                {% if user.role == 'student' %}Mã SV: {{ user.username }}
+                                {% elif user.role == 'teacher' %}Khoa Công nghệ thông tin
+                                {% else %}Phòng đào tạo{% endif %}
+                            </div>
+                        </div>
+                        <span class="chevron">⌄</span>
+                    </div>
+
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <a class="dropdown-item" href="/change-password">🔑 Thay đổi mật khẩu</a>
+                        <a class="dropdown-item danger" href="/logout" onclick="return confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')">🚪 Đăng xuất</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            {% if user.role == 'admin' %}
+                <!-- GIAO DIỆN TỔNG QUAN QUẢN TRỊ VIÊN (ADMIN DASHBOARD) -->
+                <h1 class="page-title">Tổng quan</h1>
+                <p class="page-subtitle">Theo dõi quy mô sinh viên, lớp học và tình hình đào tạo.</p>
+
+                <!-- 3 Thẻ chỉ số tổng hợp -->
+                <div class="kpi-grid">
+                    <div class="card">
+                        <div class="kpi-header">
+                            <span>Tổng số sinh viên</span>
+                            <div class="kpi-icon">👥</div>
+                        </div>
+                        <div class="kpi-value">{{ summary.total_students }}</div>
+                        <div class="kpi-note">{{ summary.active_students }} đang học · {{ summary.reserved_students }} bảo lưu</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="kpi-header">
+                            <span>Tổng số lớp</span>
+                            <div class="kpi-icon">🏫</div>
+                        </div>
+                        <div class="kpi-value">0{{ summary.total_classes }}</div>
+                        <div class="kpi-note">3 ngành · Khóa tuyển sinh 2024</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="kpi-header">
+                            <span>Sinh viên đang học</span>
+                            <div class="kpi-icon">🎓</div>
+                        </div>
+                        <div class="kpi-value">{{ summary.active_students }}</div>
+                        <div class="kpi-note">Chiếm 96.8% tổng quy mô sinh viên</div>
+                    </div>
+                </div>
+
+                <!-- Biểu đồ số lượng theo lớp & Tình trạng sinh viên -->
+                <div class="chart-grid">
+                    <div class="card">
+                        <div class="card-title">Số lượng sinh viên theo lớp</div>
+                        {% for c in classes %}
+                        <div class="bar-row">
+                            <div class="bar-label">{{ c.code }}</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: {{ (c.total / 60 * 100)|round(1) }}%;"></div>
+                            </div>
+                            <div class="bar-num">{{ c.total }}</div>
+                        </div>
+                        {% endfor %}
+                        <div class="chart-legend">
+                            <span class="legend-dot"></span>
+                            <span>Tổng số sinh viên - Bao gồm sinh viên đang học và bảo lưu</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Tình trạng sinh viên</div>
+                        <div class="status-item">
+                            <div class="status-top">
+                                <span>Đang học</span>
+                                <strong>{{ summary.active_students }}</strong>
+                            </div>
+                            <div class="status-track">
+                                <div class="status-fill-green" style="width: 96.8%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="status-item">
+                            <div class="status-top">
+                                <span>Bảo lưu</span>
+                                <strong>{{ summary.reserved_students }}</strong>
+                            </div>
+                            <div class="status-track">
+                                <div class="status-fill-amber" style="width: 3.2%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="scope-box">
+                            <div class="scope-title">PHẠM VI THỐNG KÊ</div>
+                            <div class="scope-text">Năm học 2026 – 2027 · Toàn trường</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng thống kê chi tiết theo lớp -->
+                <div class="card">
+                    <div class="table-header">
+                        <div class="card-title" style="margin-bottom: 0;">Thống kê chi tiết theo lớp</div>
+                        <a href="#" class="table-link">Xem danh sách lớp ↗</a>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>MÃ LỚP</th>
+                                <th>TÊN LỚP</th>
+                                <th>TỔNG SỐ</th>
+                                <th>ĐANG HỌC</th>
+                                <th>BẢO LƯU</th>
+                                <th>TỶ TRỌNG</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in classes %}
+                            <tr>
+                                <td class="class-code">{{ c.code }}</td>
+                                <td><strong>{{ c.name }}</strong></td>
+                                <td>{{ c.total }}</td>
+                                <td><span class="badge-green">{{ c.active }}</span></td>
+                                <td><span class="badge-amber">{{ c.reserved }}</span></td>
+                                <td>{{ c.ratio }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <!-- GIAO DIỆN SINH VIÊN / GIẢNG VIÊN -->
+                <h1 class="page-title">
+                    {% if user.role == 'student' %}Thông tin cá nhân{% else %}Thông tin giảng viên{% endif %}
+                </h1>
+                <p class="page-subtitle">Hồ sơ cá nhân và không gian làm việc trực tuyến.</p>
+
+                <div class="info-card">
+                    <p><strong>Xin chào:</strong> {{ user.full_name }}</p>
+                    <p><strong>Mã tài khoản / Tên đăng nhập:</strong> {{ user.username }}</p>
+                    <p><strong>Vai trò hiện tại:</strong> <span class="tag">{{ user.role.upper() }}</span></p>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <script>
+        function toggleProfileMenu() {
+            document.getElementById("profile-dropdown").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest(".user-profile-wrap")) {
+                document.getElementById("profile-dropdown").classList.remove("show");
+            }
+        }
+    </script>
+</body>
+</html>
