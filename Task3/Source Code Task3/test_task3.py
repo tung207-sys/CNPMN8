@@ -44,9 +44,9 @@ def reset_sample_data():
         LopHoc(1, 'CNTT2401', 'Công nghệ thông tin 1', 'Công nghệ thông tin',
                'Khóa 2024 – 2028 | Hệ chính quy', 48, 'Thứ 2 | 10:15 – 11:00', 'B301'),
         LopHoc(2, 'CNTT2402', 'Công nghệ thông tin 2', 'Công nghệ thông tin',
-               'Khóa 2024 – 2028 | Hệ chính quy', 46, 'Thứ 3 | 10:15 – 11:00', 'B301'),
+               'Khóa 2024 – 2028 | Hệ chính quy', 46, 'Thứ 3 | 10:15 – 11:00', 'D107'),
         LopHoc(3, 'QTKD2401', 'Quản trị kinh doanh', 'Quản trị kinh doanh',
-               'Khóa 2024 – 2028 | Hệ chính quy', 47, 'Thứ 4 | 10:15 – 11:00', 'B301'),
+               'Khóa 2024 – 2028 | Hệ chính quy', 47, 'Thứ 4 | 10:15 – 11:00', 'C103'),
     ])
 
     PHAN_CONGS.clear()
