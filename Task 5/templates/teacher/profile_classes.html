@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Thông tin giảng viên - Cổng giảng viên{% endblock %}
+
+{% block content %}
+<div class="tp-page-header">
+    <div>
+        <h1>Thông tin giảng viên</h1>
+        <p>Hồ sơ cá nhân, lớp được phân công và học phần phụ trách.</p>
+    </div>
+</div>
+
+<!-- Hero Card -->
+<div class="tp-hero-card">
+    <div>
+        <div class="tp-hero-dept">{{ teacher.teacher_id }} • {{ teacher.department }}</div>
+        <div class="tp-hero-name">{{ teacher.full_name }}</div>
+        <div class="tp-hero-sub">{{ teacher.position_info }}</div>
+    </div>
+    <span class="tp-status-badge">Đang giảng dạy</span>
+</div>
+
+<!-- 3 Thẻ thống kê -->
+<div class="tp-stat-grid">
+    <div class="tp-stat-card">
+        <div class="tp-stat-left">
+            <span class="tp-stat-label">Lớp được phân công</span>
+            <span class="tp-stat-sub">Trong học kỳ hiện tại</span>
+        </div>
+        <span class="tp-stat-num">{{ "%02d"|format(assigned_classes|length) }}</span>
+    </div>
+
+    <div class="tp-stat-card">
+        <div class="tp-stat-left">
+            <span class="tp-stat-label">Môn học phụ trách</span>
+            <span class="tp-stat-sub">{{ total_credits }} tín chỉ giảng dạy</span>
+        </div>
+        <span class="tp-stat-num">{{ "%02d"|format(assigned_subjects|length) }}</span>
+    </div>
+
+    <div class="tp-stat-card">
+        <div class="tp-stat-left">
+            <span class="tp-stat-label">Sinh viên phụ trách</span>
+            <span class="tp-stat-sub">{{ student_breakdown }}</span>
+        </div>
+        <span class="tp-stat-num">{{ total_students }}</span>
+    </div>
+</div>
+
+<!-- 2 Cột Thông tin cá nhân & Thông tin công tác -->
+<div class="tp-two-col">
+    <div class="tp-card">
+        <div class="tp-card-title">Thông tin cá nhân & liên hệ</div>
+        <div class="tp-kv-list">
+            <div class="tp-kv-row">
+                <span>Mã giảng viên</span>
+                <strong>{{ teacher.teacher_id }}</strong>
+            </div>
+            <div class="tp-kv-row">
+                <span>Email trường</span>
+                <strong>{{ teacher.email }}</strong>
+            </div>
+            <div class="tp-kv-row">
+                <span>Số điện thoại</span>
+                <strong>{{ teacher.phone }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="tp-card">
+        <div class="tp-card-title">Thông tin công tác</div>
+        <div class="tp-kv-list">
+            <div class="tp-kv-row">
+                <span>Đơn vị</span>
+                <strong>{{ teacher.department }}</strong>
+            </div>
+            <div class="tp-kv-row">
+                <span>Học vị / Chức danh</span>
+                <strong>{{ teacher.degree_title }}</strong>
+            </div>
+            <div class="tp-kv-row">
+                <span>Chuyên môn</span>
+                <strong>{{ teacher.specialization }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Lớp được phân công & môn học phụ trách -->
+<div class="tp-card">
+    <div class="tp-card-header">
+        <span class="tp-card-title">Lớp được phân công & môn học phụ trách</span>
+        <span class="tp-card-badge-link">{{ assigned_classes|length }} lớp • Học kỳ 1</span>
+    </div>
+
+    {% if assigned_subjects %}
+    <div class="tp-table-wrap">
+        <table class="tp-table">
+            <thead>
+                <tr>
+                    <th>MÔN HỌC PHỤ TRÁCH</th>
+                    <th>LỚP / SĨ SỐ</th>
+                    <th>LỊCH GIẢNG DẠY</th>
+                    <th style="text-align: right;">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in assigned_subjects %}
+                <tr>
+                    <td>
+                        <span class="tp-cell-title">{{ s.subject_name }}</span>
+                        <span class="tp-cell-sub">{{ s.subject_id }} • {{ s.credits }} tín chỉ</span>
+                    </td>
+                    <td>
+                        <span class="tp-cell-title">{{ s.class_id }}</span>
+                        <span class="tp-cell-sub">{{ s.student_count }} sinh viên</span>
+                    </td>
+                    <td>
+                        <span class="tp-cell-title" style="font-weight: 500;">{{ s.day }} • {{ s.time }}</span>
+                        <span class="tp-cell-sub">{{ s.room }}</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <div class="tp-action-links">
+                            <a href="{{ url_for('portal.teacher_students', class_id=s.class_id, subject_id=s.subject_id) }}" class="tp-link-indigo">
+                                Xem sinh viên
+                            </a>
+                            <a href="{{ url_for('portal.teacher_grade_sheet', class_id=s.class_id, subject_id=s.subject_id) }}" class="tp-link-indigo">
+                                Xem bảng điểm
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: var(--tp-muted); font-size: 13.5px;">Giảng viên chưa được phân công lớp và môn học nào.</p>
+    {% endif %}
+</div>
+{% endblock %}
